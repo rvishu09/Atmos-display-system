@@ -1,0 +1,1266 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background: #f4f6f8;
+
+    color: #1f2937;
+
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.header {
+
+    background: #111827;
+
+    color: white;
+
+    padding: 22px 35px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+}
+
+.header h1 {
+
+    font-size: 26px;
+
+    margin-bottom: 5px;
+
+}
+
+.header p {
+
+    color: #9ca3af;
+
+    font-size: 14px;
+
+}
+
+
+/* =====================================================
+   SYSTEM STATUS
+===================================================== */
+
+.system-status {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    font-weight: bold;
+
+}
+
+.status-dot {
+
+    width: 12px;
+
+    height: 12px;
+
+    border-radius: 50%;
+
+    display: inline-block;
+
+}
+
+.status-dot.online {
+
+    background: #22c55e;
+
+}
+
+.status-dot.offline {
+
+    background: #ef4444;
+
+}
+
+
+/* =====================================================
+   SUMMARY
+===================================================== */
+
+.summary {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 20px;
+
+    padding: 25px 35px;
+
+}
+
+.summary-card {
+
+    background: white;
+
+    border-radius: 10px;
+
+    padding: 22px;
+
+    box-shadow:
+        0 2px 8px
+        rgba(0, 0, 0, 0.08);
+
+}
+
+.summary-title {
+
+    font-size: 13px;
+
+    color: #6b7280;
+
+    font-weight: bold;
+
+    margin-bottom: 10px;
+
+}
+
+.summary-value {
+
+    font-size: 32px;
+
+    font-weight: bold;
+
+}
+
+.summary-value.small {
+
+    font-size: 18px;
+
+}
+
+
+/* =====================================================
+   MAIN CONTAINER
+===================================================== */
+
+.container {
+
+    padding: 0 35px 35px;
+
+}
+
+
+/* =====================================================
+   PANEL
+===================================================== */
+
+.panel {
+
+    background: white;
+
+    border-radius: 10px;
+
+    margin-bottom: 25px;
+
+    box-shadow:
+        0 2px 8px
+        rgba(0, 0, 0, 0.08);
+
+    overflow: hidden;
+
+}
+
+.panel-header {
+
+    padding: 20px 25px;
+
+    border-bottom:
+        1px solid #e5e7eb;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+}
+
+.panel-header h2 {
+
+    font-size: 19px;
+
+    margin-bottom: 5px;
+
+}
+
+.panel-header p {
+
+    font-size: 13px;
+
+    color: #6b7280;
+
+}
+
+
+/* =====================================================
+   BUTTON
+===================================================== */
+
+.refresh-button {
+
+    border: none;
+
+    background: #2563eb;
+
+    color: white;
+
+    padding: 9px 18px;
+
+    border-radius: 6px;
+
+    cursor: pointer;
+
+    font-weight: bold;
+
+}
+
+.refresh-button:hover {
+
+    opacity: 0.9;
+
+}
+
+
+/* =====================================================
+   TABLE
+===================================================== */
+
+.table-container {
+
+    overflow-x: auto;
+
+}
+
+table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+}
+
+thead {
+
+    background: #f9fafb;
+
+}
+
+th {
+
+    text-align: left;
+
+    padding: 14px 18px;
+
+    font-size: 13px;
+
+    color: #6b7280;
+
+    border-bottom:
+        1px solid #e5e7eb;
+
+}
+
+td {
+
+    padding: 15px 18px;
+
+    border-bottom:
+        1px solid #f0f0f0;
+
+    font-size: 14px;
+
+}
+
+tbody tr:hover {
+
+    background: #f9fafb;
+
+}
+
+
+/* =====================================================
+   STATUS BADGE
+===================================================== */
+
+.badge {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    padding: 6px 10px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+
+    font-weight: bold;
+
+}
+
+.badge::before {
+
+    content: "";
+
+    width: 7px;
+
+    height: 7px;
+
+    border-radius: 50%;
+
+}
+
+.badge.connected {
+
+    background: #dcfce7;
+
+    color: #166534;
+
+}
+
+.badge.connected::before {
+
+    background: #22c55e;
+
+}
+
+.badge.offline {
+
+    background: #fee2e2;
+
+    color: #991b1b;
+
+}
+
+.badge.offline::before {
+
+    background: #ef4444;
+
+}
+
+
+/* =====================================================
+   PRODUCT
+===================================================== */
+
+.product-empty {
+
+    padding: 35px;
+
+    text-align: center;
+
+    color: #6b7280;
+
+}
+
+.product-grid {
+
+    padding: 25px;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 15px;
+
+}
+
+.product-item {
+
+    background: #f9fafb;
+
+    padding: 18px;
+
+    border-radius: 8px;
+
+}
+
+.product-item span {
+
+    display: block;
+
+    font-size: 12px;
+
+    color: #6b7280;
+
+    margin-bottom: 7px;
+
+}
+
+.product-item strong {
+
+    font-size: 17px;
+
+}
+
+.hidden {
+
+    display: none;
+
+}
+
+
+/* =====================================================
+   TCP LOG
+===================================================== */
+
+.tcp-log {
+
+    background: #111827;
+
+    color: #d1d5db;
+
+    min-height: 180px;
+
+    max-height: 300px;
+
+    overflow-y: auto;
+
+    padding: 15px;
+
+    font-family:
+        Consolas,
+        monospace;
+
+    font-size: 13px;
+
+}
+
+.log-line {
+
+    padding: 4px 0;
+
+    border-bottom:
+        1px solid #1f2937;
+
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 900px) {
+
+    .summary {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+
+    }
+
+    .product-grid {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .header {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 15px;
+
+    }
+
+    .summary {
+
+        grid-template-columns: 1fr;
+
+        padding: 20px;
+
+    }
+
+    .container {
+
+        padding: 0 20px 20px;
+
+    }
+
+    .product-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+/* =====================================================
+   FACTORY DATA ENTRY
+===================================================== */
+
+.factory-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(280px, 1fr));
+    gap: 20px 30px;
+    padding: 25px 30px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.form-group input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #1e293b;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+.form-group input::placeholder {
+    color: #94a3b8;
+}
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
+.entry-actions {
+    display: flex;
+    gap: 12px;
+    padding: 0 30px 25px;
+}
+
+.send-display-button,
+.clear-entry-button {
+    border: none;
+    border-radius: 8px;
+    padding: 12px 22px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.send-display-button {
+    background: #2563eb;
+    color: white;
+}
+
+.send-display-button:hover {
+    background: #1d4ed8;
+}
+
+.clear-entry-button {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.clear-entry-button:hover {
+    background: #cbd5e1;
+}
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+.entry-status {
+    padding: 7px 14px;
+    border-radius: 20px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.entry-message {
+    margin: 0 30px 20px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* =====================================================
+   MOBILE / SMALL SCREEN
+===================================================== */
+
+@media (max-width: 800px) {
+
+    .factory-form {
+        grid-template-columns: 1fr;
+    }
+
+}
+/* =====================================================
+   FACTORY DATA ENTRY - SELECT
+===================================================== */
+
+.form-group select {
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding: 12px 14px;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #1e293b;
+
+    font-size: 15px;
+
+    outline: none;
+
+    cursor: pointer;
+
+}
+
+
+.form-group select:focus {
+
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(37, 99, 235, 0.10);
+
+}
+
+
+.form-group input[readonly] {
+
+    background: #f8fafc;
+
+    color: #475569;
+
+    cursor: not-allowed;
+
+}
+/* =====================================================
+   BAY EDIT BUTTON
+===================================================== */
+
+.edit-bay-button {
+
+    border: none;
+
+    background: #2563eb;
+
+    color: white;
+
+    padding: 8px 14px;
+
+    border-radius: 6px;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+}
+
+
+.edit-bay-button:hover {
+
+    background: #1d4ed8;
+
+}
+
+/* =====================================================
+   FLC CREATION
+===================================================== */
+
+.flc-panel {
+
+    overflow: hidden;
+
+}
+
+
+.flc-table-container {
+
+    width: 100%;
+
+    overflow-x: auto;
+
+}
+
+
+.flc-table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+    background: white;
+
+}
+
+
+.flc-table th {
+
+    background: #f1f5f9;
+
+    color: #334155;
+
+    font-weight: 700;
+
+    text-align: left;
+
+    padding: 14px 12px;
+
+    border-bottom:
+        1px solid #dbe1e8;
+
+    white-space: nowrap;
+
+}
+
+
+.flc-table td {
+
+    padding: 13px 12px;
+
+    border-bottom:
+        1px solid #e2e8f0;
+
+    color: #334155;
+
+    white-space: nowrap;
+
+}
+
+
+.flc-table tbody tr:hover {
+
+    background: #f8fafc;
+
+}
+
+
+.flc-table tr.editing {
+
+    background: #eff6ff;
+
+}
+
+
+.flc-input {
+
+    width: 100%;
+
+    min-width: 100px;
+
+    box-sizing: border-box;
+
+    padding: 8px 9px;
+
+    border:
+        1px solid #94a3b8;
+
+    border-radius: 5px;
+
+    font-size: 14px;
+
+}
+
+
+.flc-input:focus {
+
+    outline: none;
+
+    border-color: #2563eb;
+
+}
+
+
+.flc-actions {
+
+    display: flex;
+
+    gap: 6px;
+
+}
+
+
+.add-button {
+
+    background: #2563eb;
+
+    color: white;
+
+    border: none;
+
+    border-radius: 6px;
+
+    padding: 10px 16px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+}
+
+
+.add-button:hover {
+
+    background: #1d4ed8;
+
+}
+
+
+.edit-flc-button {
+
+    background: #2563eb;
+
+    color: white;
+
+    border: none;
+
+    border-radius: 5px;
+
+    padding: 7px 12px;
+
+    cursor: pointer;
+
+}
+
+
+.delete-flc-button {
+
+    background: #dc2626;
+
+    color: white;
+
+    border: none;
+
+    border-radius: 5px;
+
+    padding: 7px 12px;
+
+    cursor: pointer;
+
+}
+
+
+.save-flc-button {
+
+    background: #16a34a;
+
+    color: white;
+
+    border: none;
+
+    border-radius: 5px;
+
+    padding: 7px 12px;
+
+    cursor: pointer;
+
+}
+
+
+.cancel-flc-button {
+
+    background: #64748b;
+
+    color: white;
+
+    border: none;
+
+    border-radius: 5px;
+
+    padding: 7px 12px;
+
+    cursor: pointer;
+
+}
+
+
+.edit-flc-button:hover {
+
+    background: #1d4ed8;
+
+}
+
+
+.delete-flc-button:hover {
+
+    background: #b91c1c;
+
+}
+
+
+.save-flc-button:hover {
+
+    background: #15803d;
+
+}
+
+
+.flc-status {
+
+    display: inline-block;
+
+    padding: 5px 9px;
+
+    border-radius: 20px;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+}
+
+
+.flc-status.published {
+
+    background: #dcfce7;
+
+    color: #15803d;
+
+}
+
+
+.flc-status.editing-status {
+
+    background: #dbeafe;
+
+    color: #1d4ed8;
+
+}
+
+
+.empty-row {
+
+    text-align: center;
+
+    padding: 40px !important;
+
+    color: #64748b;
+
+}
+/* =====================================================
+   FLC ADD FORM
+===================================================== */
+
+.flc-modal {
+
+    position: fixed;
+
+    inset: 0;
+
+    background:
+        rgba(0, 0, 0, 0.55);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    z-index: 9999;
+
+}
+
+
+.flc-modal.hidden {
+
+    display: none;
+
+}
+
+
+.flc-modal-box {
+
+    width: 700px;
+
+    max-width: 92vw;
+
+    max-height: 90vh;
+
+    overflow-y: auto;
+
+    background: white;
+
+    border-radius: 10px;
+
+    box-shadow:
+        0 20px 50px
+        rgba(0, 0, 0, 0.25);
+
+}
+
+
+.flc-modal-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 20px 24px;
+
+    border-bottom:
+        1px solid #e2e8f0;
+
+}
+
+
+.flc-modal-header h2 {
+
+    margin: 0;
+
+}
+
+
+.flc-modal-header p {
+
+    margin: 5px 0 0;
+
+    color: #64748b;
+
+}
+
+
+.close-flc-button {
+
+    border: none;
+
+    background: transparent;
+
+    font-size: 30px;
+
+    cursor: pointer;
+
+    color: #64748b;
+
+}
+
+
+.flc-form {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 18px;
+
+    padding: 24px;
+
+}
+
+
+.flc-form-group {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 7px;
+
+}
+
+
+.flc-form-group label {
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    color: #334155;
+
+}
+
+
+.flc-form-group input,
+
+.flc-form-group select {
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding: 11px 12px;
+
+    border:
+        1px solid #cbd5e1;
+
+    border-radius: 6px;
+
+    font-size: 14px;
+
+}
+
+
+.flc-form-group input:focus,
+
+.flc-form-group select:focus {
+
+    outline: none;
+
+    border-color: #2563eb;
+
+}
+
+
+.flc-form-group small {
+
+    color: #64748b;
+
+    font-size: 11px;
+
+}
+
+
+.flc-modal-actions {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    padding: 18px 24px;
+
+    border-top:
+        1px solid #e2e8f0;
+
+}
+
+
+.flc-modal-actions button {
+
+    padding: 10px 18px;
+
+    border-radius: 6px;
+
+    border: none;
+
+    cursor: pointer;
+
+    font-weight: 700;
+
+}
+
+
+.flc-modal-actions
+.save-flc-button {
+
+    background: #16a34a;
+
+    color: white;
+
+}
+
+
+.flc-modal-actions
+.cancel-flc-button {
+
+    background: #64748b;
+
+    color: white;
+
+}
+
+
+.flc-modal-actions
+.save-flc-button:hover {
+
+    background: #15803d;
+
+}
+
+
+.flc-modal-actions
+.cancel-flc-button:hover {
+
+    background: #475569;
+
+}
+
+
+.add-button {
+
+    background: #2563eb;
+
+    color: white;
+
+    border: none;
+
+    border-radius: 6px;
+
+    padding: 10px 18px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+}
+
+
+.add-button:hover {
+
+    background: #1d4ed8;
+
+}
+
+
+@media (max-width: 700px) {
+
+    .flc-form {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}

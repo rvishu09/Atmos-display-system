@@ -1,0 +1,226 @@
+* {
+
+    box-sizing: border-box;
+
+    margin: 0;
+
+    padding: 0;
+
+}
+
+
+body {
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background: #0f172a;
+
+    color: white;
+
+    min-height: 100vh;
+
+}
+
+
+.screen {
+
+    min-height: 100vh;
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+
+header {
+
+    background: #111827;
+
+    padding: 25px 50px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    border-bottom:
+        2px solid #334155;
+
+}
+
+
+.logo {
+
+    font-size: 30px;
+
+    font-weight: bold;
+
+    letter-spacing: 1px;
+
+}
+
+
+.connection {
+
+    padding: 10px 20px;
+
+    border-radius: 30px;
+
+    background: #334155;
+
+    color: #cbd5e1;
+
+    font-weight: bold;
+
+}
+
+
+main {
+
+    flex: 1;
+
+    display: flex;
+
+    justify-content: space-evenly;
+
+    align-items: center;
+
+    padding: 50px;
+
+    gap: 60px;
+
+}
+
+
+.information {
+
+    width: 60%;
+
+}
+
+
+.info-row {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 28px 20px;
+
+    border-bottom:
+        1px solid #334155;
+
+}
+
+
+.info-row span {
+
+    font-size: 28px;
+
+    color: #94a3b8;
+
+}
+
+
+.info-row strong {
+
+    font-size: 32px;
+
+    text-align: right;
+
+    max-width: 60%;
+
+}
+
+
+.qr-area {
+
+    background: white;
+
+    padding: 35px;
+
+    border-radius: 20px;
+
+    text-align: center;
+
+}
+
+
+#qrcode {
+
+    width: 300px;
+
+    height: 300px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+}
+
+
+.qr-area p {
+
+    color: #111827;
+
+    font-size: 20px;
+
+    font-weight: bold;
+
+    margin-top: 15px;
+
+}
+
+
+footer {
+
+    background: #111827;
+
+    text-align: center;
+
+    padding: 15px;
+
+    color: #94a3b8;
+
+}
+
+
+@media (max-width: 1000px) {
+
+    main {
+
+        flex-direction: column;
+
+    }
+
+
+    .information {
+
+        width: 90%;
+
+    }
+
+
+    .info-row span {
+
+        font-size: 22px;
+
+    }
+
+
+    .info-row strong {
+
+        font-size: 24px;
+
+    }
+
+}

@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>ATMOS Display System</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<body>
+
+    <!-- =================================================
+         HEADER
+    ================================================== -->
+
+    <header class="header">
+
+        <div>
+
+            <h1>ATMOS DISPLAY SYSTEM</h1>
+
+            <p>
+                Multi-Bay TCP Monitoring Dashboard
+            </p>
+
+        </div>
+
+        <div class="system-status">
+
+            <span
+                id="systemStatusDot"
+                class="status-dot offline"
+            ></span>
+
+            <span id="systemStatus">
+                Connecting...
+            </span>
+
+        </div>
+
+    </header>
+
+
+    <!-- =================================================
+         SUMMARY CARDS
+    ================================================== -->
+
+    <section class="summary">
+
+        <div class="summary-card">
+
+            <div class="summary-title">
+                TOTAL BAYS
+            </div>
+
+            <div
+                id="totalBays"
+                class="summary-value"
+            >
+                0
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-title">
+                CONNECTED
+            </div>
+
+            <div
+                id="connectedBays"
+                class="summary-value"
+            >
+                0
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-title">
+                OFFLINE
+            </div>
+
+            <div
+                id="offlineBays"
+                class="summary-value"
+            >
+                0
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-title">
+                LAST DATA
+            </div>
+
+            <div
+                id="lastDataTime"
+                class="summary-value small"
+            >
+                --
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =================================================
+         BAY TABLE
+    ================================================== -->
+
+    <main class="container">
+
+       
+
+<!-- =====================================================
+     FLC CREATION
+===================================================== -->
+
+<section class="panel flc-panel">
+
+    <div class="panel-header">
+
+        <div>
+            <h2>FLC Creation</h2>
+
+            <p>
+                Create and manage product information
+                for factory bays
+            </p>
+        </div>
+
+        <button
+            type="button"
+            id="addFLCButton"
+            class="add-button"
+        >
+            + ADD NEW
+        </button>
+
+    </div>
+
+
+    <!-- FLC TABLE -->
+
+    <div class="flc-table-container">
+
+        <table class="flc-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>Way No.</th>
+                    <th>Bay No.</th>
+                    <th>Serial No.</th>
+                    <th>Product</th>
+                    <th>Model</th>
+                    <th>QR Data</th>
+                    <th>IP Address</th>
+                    <th>Status</th>
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody id="flcTableBody">
+
+                <tr>
+
+                    <td
+                        colspan="9"
+                        class="empty-row"
+                    >
+                        No FLC records found.
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     FLC ADD FORM
+===================================================== -->
+
+<div
+    id="flcModal"
+    class="flc-modal hidden"
+>
+
+    <div class="flc-modal-box">
+
+        <div class="flc-modal-header">
+
+            <div>
+
+                <h2>Add FLC Details</h2>
+
+                <p>
+                    Enter product information
+                </p>
+
+            </div>
+
+            <button
+                type="button"
+                id="closeFLCButton"
+                class="close-flc-button"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="flc-form">
+
+
+            <!-- WAY NO -->
+
+            <div class="flc-form-group">
+
+                <label>
+                    Way No.
+                </label>
+
+                <input
+                    type="number"
+                    id="flcWayNo"
+                    placeholder="Enter Way No."
+                >
+
+            </div>
+
+
+            <!-- BAY NO -->
+
+            <div class="flc-form-group">
+
+                <label>
+                    Bay No.
+                </label>
+
+                <select id="flcBayNo">
+
+                    <option value="">
+                        Select Bay
+                    </option>
+
+                    <option value="1">
+                        Bay 1
+                    </option>
+
+                    <option value="2">
+                        Bay 2
+                    </option>
+
+                    <option value="3">
+                        Bay 3
+                    </option>
+
+                    <option value="4">
+                        Bay 4
+                    </option>
+
+                    <option value="5">
+                        Bay 5
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- SERIAL NO -->
+
+            <div class="flc-form-group">
+
+                <label>
+                    Serial No.
+                </label>
+
+                <input
+                    type="text"
+                    id="flcSerialNo"
+                    placeholder="Enter Serial No."
+                >
+
+            </div>
+
+
+            <!-- PRODUCT -->
+
+            <div class="flc-form-group">
+
+                <label>
+                    Product
+                </label>
+
+                <input
+                    type="text"
+                    id="flcProduct"
+                    placeholder="Enter Product"
+                >
+
+            </div>
+
+
+            <!-- MODEL -->
+
+            <div class="flc-form-group">
+
+                <label>
+                    Model
+                </label>
+
+                <input
+                    type="text"
+                    id="flcModel"
+                    placeholder="Enter Model"
+                >
+
+            </div>
+
+
+            <!-- QR DATA -->
+
+            <div class="flc-form-group">
+
+                <label>
+                    QR Data
+                </label>
+
+                <input
+                    type="text"
+                    id="flcQRData"
+                    placeholder="Enter QR Data"
+                >
+
+                <small>
+                    Only this value will be stored inside the QR code.
+                </small>
+
+            </div>
+
+
+            <!-- IP ADDRESS -->
+
+            <div class="flc-form-group">
+
+                <label>
+                    IP Address
+                </label>
+
+                <input
+                    type="text"
+                    id="flcIPAddress"
+                    placeholder="192.168.0.101"
+                >
+
+            </div>
+
+
+        </div>
+
+
+        <!-- BUTTONS -->
+
+        <div class="flc-modal-actions">
+
+            <button
+                type="button"
+                id="cancelFLCButton"
+                class="cancel-flc-button"
+            >
+                CANCEL
+            </button>
+
+
+            <button
+                type="button"
+                id="saveNewFLCButton"
+                class="save-flc-button"
+            >
+                ADD FLC
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>Bay Status</h2>
+
+                    <p>
+                        Live status of all factory computers
+                    </p>
+
+                </div>
+
+                <button
+                    id="refreshButton"
+                    class="refresh-button"
+                >
+                    Refresh
+                </button>
+
+            </div>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Way No</th>
+
+                            <th>Bay No</th>
+
+                            <th>IP Address</th>
+
+                            <th>TCP Port</th>
+
+                            <th>Status</th>
+
+                            <th>Last Product</th>
+
+                            <th>Action</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="bayTableBody">
+
+                        <tr>
+
+                            <td
+                                colspan="7"
+                                class="loading"
+                            >
+                                Loading Bays...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             LATEST PRODUCT
+        ================================================== -->
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>Latest Product Data</h2>
+
+                    <p>
+                        Most recently received product
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="productEmpty"
+                class="product-empty"
+            >
+                Waiting for product data...
+            </div>
+
+
+            <div
+                id="productData"
+                class="product-grid hidden"
+            >
+
+                <div class="product-item">
+
+                    <span>Way No</span>
+
+                    <strong id="productWay">
+                        --
+                    </strong>
+
+                </div>
+
+
+                <div class="product-item">
+
+                    <span>Bay No</span>
+
+                    <strong id="productBay">
+                        --
+                    </strong>
+
+                </div>
+
+
+                <div class="product-item">
+
+                    <span>Serial No</span>
+
+                    <strong id="productSerial">
+                        --
+                    </strong>
+
+                </div>
+
+
+                <div class="product-item">
+
+                    <span>Product</span>
+
+                    <strong id="productName">
+                        --
+                    </strong>
+
+                </div>
+
+
+                <div class="product-item">
+
+                    <span>Model</span>
+
+                    <strong id="productModel">
+                        --
+                    </strong>
+
+                </div>
+
+
+                <div class="product-item">
+
+                    <span>IP Address</span>
+
+                    <strong id="productIP">
+                        --
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             RAW TCP MONITOR
+        ================================================== -->
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>TCP Monitor</h2>
+
+                    <p>
+                        Live communication log
+                    </p>
+
+                </div>
+
+                <button
+                    id="clearLogButton"
+                    class="refresh-button"
+                >
+                    Clear
+                </button>
+
+            </div>
+
+
+            <div
+                id="tcpLog"
+                class="tcp-log"
+            >
+
+                <div class="log-line">
+                    Waiting for TCP data...
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- Socket.IO -->
+
+    <script
+        src="http://localhost:5000/socket.io/socket.io.js"
+    ></script>
+
+
+    <!-- Application -->
+
+    <script src="app.js"></script>
+
+</body>
+
+</html>

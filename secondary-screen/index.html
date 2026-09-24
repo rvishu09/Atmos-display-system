@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Secondary Display</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div class="screen">
+
+
+    <header>
+
+        <div class="logo">
+            PRODUCT DISPLAY SYSTEM
+        </div>
+
+        <div
+            id="connection"
+            class="connection">
+
+            ● WAITING
+
+        </div>
+
+    </header>
+
+
+    <main>
+
+
+        <section class="information">
+
+            <div class="info-row">
+
+                <span>Bay No.</span>
+
+                <strong id="bayNo">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span>Serial No.</span>
+
+                <strong id="serialNo">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span>Product</span>
+
+                <strong id="product">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span>Model</span>
+
+                <strong id="model">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span>IP Address</span>
+
+                <strong id="ipAddress">
+                    -
+                </strong>
+
+            </div>
+
+        </section>
+
+
+        <section class="qr-area">
+
+            <div
+                id="qrcode">
+            </div>
+
+
+            <p>
+                Scan QR Code
+            </p>
+
+        </section>
+
+
+    </main>
+
+
+    <footer>
+
+        TCP PRODUCT DISPLAY
+
+    </footer>
+
+</div>
+
+
+<script src="http://192.168.0.135:5000/socket.io/socket.io.js"></script>
+
+
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
+</script>
+
+
+<script src="app.js"></script>
+
+</body>
+
+</html>
