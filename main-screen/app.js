@@ -25,30 +25,31 @@ let lastProducts = {};
 // POPULATE BAY DROPDOWN
 // =====================================================
 
-function populateBayDropdown() {
+function populateFLCBayDropdown() {
 
-    const baySelect = document.getElementById("entryBayNo");
+    const baySelect =
+        document.getElementById("flcBayNo");
 
     if (!baySelect) {
-        console.warn("[BAY DROPDOWN] entryBayNo element not found");
+        console.warn("[FLC BAY] flcBayNo not found");
         return;
     }
 
-    console.log("[BAY DROPDOWN] Bays:", bays);
-
     baySelect.innerHTML = "";
 
-    const defaultOption = document.createElement("option");
+    const defaultOption =
+        document.createElement("option");
 
     defaultOption.value = "";
     defaultOption.textContent = "Select Bay";
-    defaultOption.selected = true;
 
     baySelect.appendChild(defaultOption);
 
+
     bays.forEach(bay => {
 
-        const bayNo = bay["Bay No"];
+        const bayNo =
+            bay["Bay No"];
 
         if (
             bayNo === undefined ||
@@ -58,18 +59,24 @@ function populateBayDropdown() {
             return;
         }
 
-        const option = document.createElement("option");
+        const option =
+            document.createElement("option");
 
-        option.value = String(bayNo);
-        option.textContent = `Bay ${bayNo}`;
+        option.value =
+            String(bayNo);
+
+        option.textContent =
+            `Bay ${bayNo}`;
 
         baySelect.appendChild(option);
 
     });
 
+
     console.log(
-        "[BAY DROPDOWN] Options:",
-        baySelect.options.length
+        "[FLC BAY DROPDOWN] Updated:",
+        baySelect.options.length - 1,
+        "bays"
     );
 }
 
@@ -216,6 +223,8 @@ async function loadBays() {
         );
 
         populateBayDropdown();
+
+        populateFLCBayDropdown();
 
         renderBays();
 
@@ -2251,6 +2260,60 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const saveButton =
         document.getElementById("saveNewFLCButton");
+      const flcBaySelect =
+    document.getElementById("flcBayNo");
+
+const flcIPInput =
+    document.getElementById("flcIPAddress");
+
+
+if (flcBaySelect) {
+
+    flcBaySelect.addEventListener(
+        "change",
+        function () {
+
+            const selectedBayNo =
+                String(this.value);
+
+            if (!selectedBayNo) {
+
+                flcIPInput.value = "";
+
+                return;
+            }
+
+
+            const selectedBay =
+                bays.find(
+                    bay =>
+                        String(
+                            bay["Bay No"]
+                        ) === selectedBayNo
+                );
+
+
+            if (!selectedBay) {
+
+                flcIPInput.value = "";
+
+                return;
+            }
+
+
+            flcIPInput.value =
+                selectedBay["IP Address"] || "";
+
+
+            console.log(
+                "[FLC BAY SELECTED]",
+                selectedBay
+            );
+
+        }
+    );
+
+}
 
 
     console.log("[FLC] Add New system loaded");
@@ -2262,25 +2325,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (addButton) {
 
-        addButton.addEventListener(
-            "click",
-            function () {
+    addButton.addEventListener(
+        "click",
+        function () {
 
-                console.log(
-                    "[FLC] ADD NEW clicked"
-                );
+            console.log(
+                "[FLC] ADD NEW clicked"
+            );
 
-                clearFLCForm();
+            // Refresh Bay dropdown every time
+            populateFLCBayDropdown();
 
-                modal.classList.remove(
-                    "hidden"
-                );
+            clearFLCForm();
 
-            }
-        );
+            modal.classList.remove(
+                "hidden"
+            );
 
-    }
+        }
+    );
 
+}
 
    
 
