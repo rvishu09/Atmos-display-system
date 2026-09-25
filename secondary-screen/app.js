@@ -1,102 +1,166 @@
-const socket = io("http://192.168.0.135:5000");
+// =====================================================
+// SECONDARY BAY DISPLAY
+// =====================================================
+
+// Backend is automatically taken from the computer
+// hosting the secondary screen.
+const API =
+    `${window.location.protocol}//${window.location.hostname}:5000`;
+
+
+// =====================================================
+// BAY NUMBER
+// =====================================================
+
+// Example:
+// http://192.168.0.135:5501/?bay=001
+
+const params =
+    new URLSearchParams(
+        window.location.search
+    );
+
+const SCREEN_BAY =
+    String(
+        params.get("bay") || ""
+    ).trim();
+
+
+console.log(
+    "[SECONDARY] Assigned Bay:",
+    SCREEN_BAY
+);
+
+
+// =====================================================
+// SOCKET.IO
+// =====================================================
+
+const socket =
+    io(API);
+
+
+// =====================================================
+// FORMAT BAY NUMBER
+// 1 -> 001
+// 2 -> 002
+// 12 -> 012
+// =====================================================
+
+function formatBayNo(value) {
+
+    if (
+        value === undefined ||
+        value === null ||
+        value === ""
+    ) {
+        return "---";
+    }
+
+    return String(value)
+        .padStart(3, "0");
+}
+
+
+// =====================================================
+// CHECK WHETHER DATA BELONGS TO THIS SCREEN
+// =====================================================
+
+function isThisBay(data) {
+
+    if (!SCREEN_BAY) {
+        return true;
+    }
+
+    if (!data) {
+        return false;
+    }
+
+    return (
+        String(
+            data.bayNo ??
+            data["Bay No"] ??
+            ""
+        ) === SCREEN_BAY
+        ||
+        formatBayNo(
+            data.bayNo ??
+            data["Bay No"] ??
+            ""
+        ) === formatBayNo(SCREEN_BAY)
+    );
+}
 
 
 // =====================================================
 // CONNECTION
 // =====================================================
 
-socket.on("connect", () => {
+socket.on(
+    "connect",
+    () => {
 
-    console.log(
-        "Secondary screen connected"
-    );
+        console.log(
+            "[SECONDARY] Connected to backend"
+        );
 
-    updateConnection(
-        "● CONNECTED"
-    );
+        updateConnection(
+            `● BAY ${formatBayNo(SCREEN_BAY)} CONNECTED`
+        );
 
-});
+        // Tell backend which bay this screen belongs to
+        socket.emit(
+            "register-secondary",
+            {
+                bayNo: SCREEN_BAY
+            }
+        );
+
+        loadSavedProduct();
+
+    }
+);
 
 
-socket.on("disconnect", () => {
+socket.on(
+    "disconnect",
+    () => {
 
-    console.log(
-        "Secondary screen disconnected"
-    );
+        updateConnection(
+            "● DISCONNECTED"
+        );
 
-    updateConnection(
-        "● DISCONNECTED"
-    );
-
-});
+    }
+);
 
 
 // =====================================================
-// TCP STATUS
+// TCP CONNECTION STATUS
 // =====================================================
 
 socket.on(
     "tcp-status",
-    async data => {
+    data => {
+
+        if (!isThisBay(data)) {
+            return;
+        }
 
         console.log(
-            "TCP STATUS:",
+            "[SECONDARY TCP STATUS]",
             data
         );
 
         if (data.connected) {
 
             updateConnection(
-                `● BAY ${data.bayNo} CONNECTED`
+                `● BAY ${formatBayNo(data.bayNo)} CONNECTED`
             );
-
-            // =========================================
-            // LOAD PRODUCT SAVED FOR THIS BAY
-            // =========================================
-
-            try {
-
-                const response = await fetch(
-                    `http://192.168.0.135:5000/api/products/${data.bayNo}`
-                );
-
-                const result = await response.json();
-
-                console.log(
-                    "[SECONDARY] PRODUCT FROM BAY:",
-                    result
-                );
-
-                if (
-                    result.success &&
-                    result.data
-                ) {
-
-                    displayProduct(
-                        result.data
-                    );
-
-                } else {
-
-                    console.log(
-                        `[SECONDARY] No product saved for Bay ${data.bayNo}`
-                    );
-
-                }
-
-            } catch (error) {
-
-                console.error(
-                    "[SECONDARY] Product loading error:",
-                    error
-                );
-
-            }
 
         } else {
 
             updateConnection(
-                "● BAY DISCONNECTED"
+                `● BAY ${formatBayNo(data.bayNo)} DISCONNECTED`
             );
 
         }
@@ -104,19 +168,23 @@ socket.on(
     }
 );
 
+
 // =====================================================
-// RECEIVE PRODUCT FROM TCP
+// TCP PRODUCT DATA
 // =====================================================
 
 socket.on(
     "product-data",
     product => {
 
+        if (!isThisBay(product)) {
+            return;
+        }
+
         console.log(
-            "PRODUCT RECEIVED:",
+            "[SECONDARY PRODUCT]",
             product
         );
-
 
         displayProduct(
             product
@@ -126,71 +194,172 @@ socket.on(
 );
 
 
+// =====================================================
+// MASTER PC REAL-TIME UPDATE
+// =====================================================
+
+socket.on(
+    "product-updated",
+    product => {
+
+        if (!isThisBay(product)) {
+            return;
+        }
+
+        console.log(
+            "[MASTER REAL-TIME UPDATE]",
+            product
+        );
+
+        displayProduct(
+            product
+        );
+
+        updateConnection(
+            `● BAY ${formatBayNo(product.bayNo)} UPDATED`
+        );
+
+    }
+);
+
+
+// =====================================================
+// DELETE
+// =====================================================
+
+socket.on(
+    "product-deleted",
+    data => {
+
+        if (!isThisBay(data)) {
+            return;
+        }
+
+        clearDisplay();
+
+    }
+);
+
+
+// =====================================================
+// DISPLAY PRODUCT
+// =====================================================
+
+socket.on(
+    "display-product",
+    product => {
+
+        if (!isThisBay(product)) {
+            return;
+        }
+
+        displayProduct(
+            product
+        );
+
+    }
+);
+
+
+// =====================================================
+// DISPLAY PRODUCT
+// =====================================================
+
 function displayProduct(product) {
 
     if (!product) {
         return;
     }
 
-    console.log(
-        "[SECONDARY DISPLAY PRODUCT]",
-        product
-    );
 
     const bayNo =
-        document.getElementById("bayNo");
-
-    const productElement =
-        document.getElementById("product");
-
-    const model =
-        document.getElementById("model");
-
-    const ipAddress =
-        document.getElementById("ipAddress");
+        product.bayNo ||
+        SCREEN_BAY;
 
 
-    if (bayNo) {
-        bayNo.textContent =
-            product.bayNo || "-";
-    }
+    // ---------------------------------------------
+    // BAY NUMBER
+    // ---------------------------------------------
 
-    if (productElement) {
-        productElement.textContent =
-            product.product || "-";
-    }
+    const bayElement =
+        document.getElementById(
+            "bayNo"
+        );
 
-    if (model) {
-        model.textContent =
-            product.model || "-";
-    }
+    if (bayElement) {
 
-    if (ipAddress) {
-        ipAddress.textContent =
-            product.ipAddress || "-";
+        bayElement.textContent =
+            formatBayNo(bayNo);
+
     }
 
 
-    // Generate the QR again
-    generateQR(product);
+    // ---------------------------------------------
+    // ORDER ID
+    // ---------------------------------------------
+
+    const orderElement =
+        document.getElementById(
+            "orderId"
+        );
+
+    if (orderElement) {
+
+        orderElement.textContent =
+            product.orderId ||
+            "-";
+
+    }
 
 
-    // Save the COMPLETE product for refresh
+    // ---------------------------------------------
+    // QR DATA
+    // ---------------------------------------------
+
+    const qrValue =
+        getQRValue(
+            product.qrValue
+        );
+
+
+    const qrDataElement =
+        document.getElementById(
+            "qrData"
+        );
+
+    if (qrDataElement) {
+
+        qrDataElement.textContent =
+            qrValue ||
+            "-";
+
+    }
+
+
+    // ---------------------------------------------
+    // GENERATE QR
+    // ---------------------------------------------
+
+    generateQR(
+        qrValue
+    );
+
+
+    // ---------------------------------------------
+    // SAVE
+    // ---------------------------------------------
+
     try {
 
         localStorage.setItem(
-            "secondaryLastProduct",
+            `secondaryBay_${formatBayNo(bayNo)}`,
             JSON.stringify(product)
-        );
-
-        console.log(
-            "[STORAGE] Product saved"
         );
 
     } catch (error) {
 
         console.error(
-            "[STORAGE] Save failed:",
+            "[STORAGE ERROR]",
             error
         );
 
@@ -200,78 +369,69 @@ function displayProduct(product) {
 
 
 // =====================================================
-// FLC REAL-TIME UPDATE
+// GET QR VALUE
+// Supports old JSON QR format too
 // =====================================================
 
-socket.on(
-    "product-updated",
-    product => {
+function getQRValue(value) {
 
-        console.log(
-            "[FLC REAL-TIME UPDATE]",
-            product
-        );
-
-
-        displayProduct(
-            product
-        );
-
-
-        updateConnection(
-            `● BAY ${product.bayNo} UPDATED`
-        );
-
+    if (
+        value === undefined ||
+        value === null
+    ) {
+        return "";
     }
-);
 
 
-// =====================================================
-// FLC REAL-TIME DELETE
-// =====================================================
-
-socket.on(
-    "product-deleted",
-    data => {
-
-        console.log(
-            "[FLC REAL-TIME DELETE]",
-            data
-        );
+    const text =
+        String(value);
 
 
-        const currentBay =
-            document.getElementById(
-                "bayNo"
-            ).textContent;
+    // New format = plain QR data
+    if (
+        !text.trim().startsWith("{")
+    ) {
+        return text;
+    }
 
 
-        // Clear only if this screen
-        // is showing the deleted bay
+    // Old format = JSON
+    try {
+
+        const parsed =
+            JSON.parse(text);
+
 
         if (
-            String(currentBay) ===
-            String(data.bayNo)
+            parsed.qrData !== undefined
         ) {
 
-            clearSecondaryDisplay();
+            return String(
+                parsed.qrData
+            );
 
         }
 
+    } catch (error) {
+
+        console.warn(
+            "[QR] Old QR JSON could not be parsed"
+        );
+
     }
-);
 
 
+    return text;
 
+}
 
 
 // =====================================================
-// GENERATE QR
-// QR CONTAINS ONLY QR VALUE
+// QR GENERATION
 // =====================================================
 
 function generateQR(
-    product
+    qrValue
 ) {
 
     const container =
@@ -280,19 +440,46 @@ function generateQR(
         );
 
 
+    if (!container) {
+        return;
+    }
+
+
     container.innerHTML = "";
 
 
-    // ONLY QR DATA
+    if (!qrValue) {
+        return;
+    }
 
-    const qrData =
-        product.qrValue || "";
+
+    new QRCode(
+        container,
+        {
+            text: String(qrValue),
+
+            width: 420,
+
+            height: 420,
+
+            correctLevel:
+                QRCode.CorrectLevel.H
+        }
+    );
+
+}
 
 
-    if (!qrData) {
+// =====================================================
+// LOAD SAVED DATA
+// =====================================================
 
-        console.warn(
-            "[QR] No QR Value"
+async function loadSavedProduct() {
+
+    if (!SCREEN_BAY) {
+
+        updateConnection(
+            "● SET BAY NUMBER"
         );
 
         return;
@@ -300,150 +487,67 @@ function generateQR(
     }
 
 
-    console.log(
-        "[QR] Data:",
-        qrData
-    );
-
-
-    new QRCode(
-        container,
-        {
-
-            text:
-                String(
-                    qrData
-                ),
-
-            width:
-                300,
-
-            height:
-                300,
-
-            correctLevel:
-                QRCode.CorrectLevel.H
-
-        }
-    );
-
-}
-
-
-// =====================================================
-// CLEAR SECONDARY DISPLAY
-// =====================================================
-
-function clearSecondaryDisplay() {
-    localStorage.removeItem(
-    "secondaryLastProduct"
-);
-
-    const bayNo =
-        document.getElementById("bayNo");
-
-    const product =
-        document.getElementById("product");
-
-    const model =
-        document.getElementById("model");
-
-    const ipAddress =
-        document.getElementById("ipAddress");
-
-    const qrcode =
-        document.getElementById("qrcode");
-
-
-    if (bayNo) {
-        bayNo.textContent = "-";
-    }
-
-    if (product) {
-        product.textContent = "-";
-    }
-
-    if (model) {
-        model.textContent = "-";
-    }
-
-    if (ipAddress) {
-        ipAddress.textContent = "-";
-    }
-
-    if (qrcode) {
-        qrcode.innerHTML = "";
-    }
-
-
-    updateConnection(
-        "● WAITING"
-    );
-
-}
-
-
-// =====================================================
-// CONNECTION DISPLAY
-// =====================================================
-
-function updateConnection(
-    text
-) {
-
-    document.getElementById(
-        "connection"
-    ).textContent =
-        text;
-
-}
-
-// =====================================================
-// RESTORE LAST PRODUCT AFTER REFRESH
-// =====================================================
-
-function restoreLastProduct() {
-
     try {
 
-        const savedProduct =
-            localStorage.getItem(
-                "secondaryLastProduct"
+        // First try backend
+        const response =
+            await fetch(
+                `${API}/api/products/${SCREEN_BAY}`
             );
 
-        console.log(
-            "[STORAGE] Saved product:",
-            savedProduct
-        );
 
-        if (!savedProduct) {
+        if (response.ok) {
 
-            console.log(
-                "[STORAGE] No saved product"
-            );
+            const result =
+                await response.json();
 
-            return;
+
+            if (
+                result.success &&
+                result.data
+            ) {
+
+                displayProduct(
+                    result.data
+                );
+
+                return;
+
+            }
 
         }
 
-        const product =
-            JSON.parse(savedProduct);
+    } catch (error) {
 
-        console.log(
-            "[STORAGE] Restoring product:",
-            product
+        console.warn(
+            "[SECONDARY] Backend product load failed",
+            error
         );
 
-        displayProduct(product);
+    }
 
-        updateConnection(
-            `● BAY ${product.bayNo || "-"}`
-        );
+
+    // Fallback to local storage
+    try {
+
+        const saved =
+            localStorage.getItem(
+                `secondaryBay_${formatBayNo(SCREEN_BAY)}`
+            );
+
+
+        if (saved) {
+
+            displayProduct(
+                JSON.parse(saved)
+            );
+
+        }
 
     } catch (error) {
 
         console.error(
-            "[STORAGE] Restore error:",
+            "[STORAGE RESTORE ERROR]",
             error
         );
 
@@ -452,5 +556,53 @@ function restoreLastProduct() {
 }
 
 
-// Restore immediately when page loads
-restoreLastProduct();
+// =====================================================
+// CLEAR DISPLAY
+// =====================================================
+
+function clearDisplay() {
+
+    document.getElementById(
+        "bayNo"
+    ).textContent = "---";
+
+
+    document.getElementById(
+        "orderId"
+    ).textContent = "-";
+
+
+    document.getElementById(
+        "qrData"
+    ).textContent = "-";
+
+
+    document.getElementById(
+        "qrcode"
+    ).innerHTML = "";
+
+}
+
+
+// =====================================================
+// CONNECTION TEXT
+// =====================================================
+
+function updateConnection(
+    text
+) {
+
+    const element =
+        document.getElementById(
+            "connection"
+        );
+
+
+    if (element) {
+
+        element.textContent =
+            text;
+
+    }
+
+}

@@ -1,22 +1,42 @@
 {
   "1": {
     "bayNo": "1",
-    "wayNo": "",
+    "orderId": "ORDER001",
     "serialNo": "",
-    "product": "car",
-    "model": "2022",
-    "qrValue": "{\"product\":\"car\",\"model\":\"2022\",\"qrData\":\"\"}",
+    "qrValue": "asdfr",
     "ipAddress": "127.0.0.1",
-    "updatedAt": "2026-09-25T09:59:37.439Z"
+    "updatedAt": "2026-09-25T11:07:08.553Z"
+  },
+  "2": {
+    "bayNo": "2",
+    "orderId": "ORDER002",
+    "serialNo": "",
+    "qrValue": "234r",
+    "ipAddress": "127.0.2.4",
+    "updatedAt": "2026-09-25T11:06:13.434Z"
   },
   "3": {
     "bayNo": "3",
-    "wayNo": "",
+    "orderId": "ORDER003",
     "serialNo": "",
-    "product": "bike",
-    "model": "8383nh",
-    "qrValue": "{\"product\":\"bike\",\"model\":\"8383nh\",\"qrData\":\"ergg\"}",
+    "qrValue": "34rf",
     "ipAddress": "127.0.0.7",
-    "updatedAt": "2026-09-25T09:53:00.987Z"
+    "updatedAt": "2026-09-25T11:07:46.884Z"
+  },
+  "4": {
+    "bayNo": "4",
+    "orderId": "zxdf",
+    "serialNo": "",
+    "qrValue": "edrftg",
+    "ipAddress": "127.0.0.2",
+    "updatedAt": "2026-09-25T11:10:35.213Z"
+  },
+  "5": {
+    "bayNo": "5",
+    "orderId": "se3",
+    "serialNo": "",
+    "qrValue": "wdfgt5r",
+    "ipAddress": "127.0.0.9",
+    "updatedAt": "2026-09-25T12:10:53.378Z"
   }
 }

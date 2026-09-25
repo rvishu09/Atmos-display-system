@@ -127,6 +127,12 @@ function saveProducts() {
 
 const tcpConnections = {};
 
+// =====================================================
+// COMMUNICATION STATUS
+// =====================================================
+
+const lastCommunication = {};
+
 
 // =====================================================
 // READ EXCEL
@@ -199,35 +205,33 @@ app.put("/api/products/:bayNo", (req, res) => {
 
         const bayNo = String(req.params.bayNo);
 
-        const {
-            wayNo,
-            serialNo,
-            product,
-            model,
-            qrValue,
-            ipAddress
-        } = req.body;
+       const {
+    orderId,
+    serialNo,
+    qrValue,
+    ipAddress
+} = req.body;
 
+const productData = {
 
-        const productData = {
+    bayNo: bayNo,
 
-            bayNo: bayNo,
+    orderId:
+        orderId || "",
 
-            wayNo: wayNo || "",
+    serialNo:
+        serialNo || "",
 
-            serialNo: serialNo || "",
+    qrValue:
+        qrValue || "",
 
-            product: product || "",
+    ipAddress:
+        ipAddress || "",
 
-            model: model || "",
+    updatedAt:
+        new Date().toISOString()
 
-            qrValue: qrValue || "",
-
-            ipAddress: ipAddress || "",
-
-            updatedAt: new Date().toISOString()
-
-        };
+};
 
 
         // Save product in memory
@@ -1221,6 +1225,18 @@ function processTCPMessage(
         return;
 
     }
+    // Record latest communication time
+const bayNo = String(bayConfig["Bay No"]);
+
+lastCommunication[bayNo] = Date.now();
+
+
+// Send communication status
+io.emit("communication-status", {
+    bayNo: bayNo,
+    communicating: true,
+    lastCommunication: lastCommunication[bayNo]
+});
 
 
     console.log("");

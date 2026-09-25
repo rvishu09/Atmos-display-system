@@ -1,106 +1,108 @@
+/* =========================================================
+   GLOBAL
+========================================================= */
+
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
-
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-
+    font-family: Arial, Helvetica, sans-serif;
     background: #f4f6f8;
-
     color: #1f2937;
-
+    min-height: 100vh;
 }
 
 
-/* =====================================================
+/* =========================================================
    HEADER
-===================================================== */
+========================================================= */
 
 .header {
+    width: 100%;
 
-    background: #111827;
+    /* YELLOW ATMOS HEADER */
+    background: #ffd600;
 
-    color: white;
+    color: #111111;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
     padding: 22px 35px;
 
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-
+    /* YELLOW BOTTOM LINE */
+    border-bottom: 4px solid #ffd600;
 }
 
 .header h1 {
+    font-size: 27px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
 
-    font-size: 26px;
-
-    margin-bottom: 5px;
-
+    color: #111111;
 }
 
 .header p {
+    margin-top: 6px;
 
-    color: #9ca3af;
+    color: #333333;
 
     font-size: 14px;
-
 }
 
 
-/* =====================================================
+/* =========================================================
    SYSTEM STATUS
-===================================================== */
+========================================================= */
 
 .system-status {
-
     display: flex;
-
     align-items: center;
-
     gap: 10px;
 
-    font-weight: bold;
+    font-size: 14px;
+    font-weight: 600;
 
+    color: #111111;
 }
 
 .status-dot {
-
     width: 12px;
-
     height: 12px;
 
     border-radius: 50%;
 
     display: inline-block;
-
 }
 
 .status-dot.online {
-
     background: #22c55e;
 
+    box-shadow:
+        0 0 8px rgba(34, 197, 94, 0.6);
 }
 
 .status-dot.offline {
-
     background: #ef4444;
-
 }
 
 
-/* =====================================================
-   SUMMARY
-===================================================== */
+/* =========================================================
+   SUMMARY CARDS
+========================================================= */
 
 .summary {
+    width: calc(100% - 50px);
+
+    margin: 25px auto;
 
     display: grid;
 
@@ -108,89 +110,78 @@ body {
         repeat(4, 1fr);
 
     gap: 20px;
-
-    padding: 25px 35px;
-
 }
 
 .summary-card {
-
     background: white;
 
     border-radius: 10px;
 
     padding: 22px;
 
-    box-shadow:
-        0 2px 8px
-        rgba(0, 0, 0, 0.08);
+    border: 1px solid #e5e7eb;
 
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .summary-title {
-
     font-size: 13px;
+
+    font-weight: 700;
 
     color: #6b7280;
 
-    font-weight: bold;
-
-    margin-bottom: 10px;
-
+    letter-spacing: 0.5px;
 }
 
 .summary-value {
+    margin-top: 10px;
 
-    font-size: 32px;
+    font-size: 30px;
 
-    font-weight: bold;
+    font-weight: 700;
 
+    color: #111827;
 }
 
 .summary-value.small {
-
     font-size: 18px;
-
 }
 
 
-/* =====================================================
+/* =========================================================
    MAIN CONTAINER
-===================================================== */
+========================================================= */
 
 .container {
+    width: calc(100% - 50px);
 
-    padding: 0 35px 35px;
-
+    margin: 0 auto 40px;
 }
 
 
-/* =====================================================
+/* =========================================================
    PANEL
-===================================================== */
+========================================================= */
 
 .panel {
-
     background: white;
 
     border-radius: 10px;
 
-    margin-bottom: 25px;
+    border: 1px solid #e5e7eb;
 
     box-shadow:
-        0 2px 8px
-        rgba(0, 0, 0, 0.08);
+        0 2px 8px rgba(0, 0, 0, 0.05);
+
+    margin-bottom: 25px;
 
     overflow: hidden;
-
 }
 
 .panel-header {
-
-    padding: 20px 25px;
-
-    border-bottom:
-        1px solid #e5e7eb;
+    padding: 22px 25px;
 
     display: flex;
 
@@ -198,835 +189,414 @@ body {
 
     align-items: center;
 
+    border-bottom:
+        1px solid #e5e7eb;
 }
 
 .panel-header h2 {
+    font-size: 20px;
 
-    font-size: 19px;
-
-    margin-bottom: 5px;
-
+    color: #111827;
 }
 
 .panel-header p {
+    margin-top: 5px;
 
     font-size: 13px;
 
     color: #6b7280;
-
 }
 
 
-/* =====================================================
-   BUTTON
-===================================================== */
+/* =========================================================
+   ADD BUTTON
+========================================================= */
 
-.refresh-button {
+.add-button {
+    /* YELLOW */
+    background: #ffd600;
+
+    /* BLACK TEXT */
+    color: #111111;
 
     border: none;
 
-    background: #2563eb;
-
-    color: white;
-
-    padding: 9px 18px;
-
     border-radius: 6px;
+
+    padding: 11px 18px;
+
+    font-size: 14px;
+
+    font-weight: 700;
 
     cursor: pointer;
 
-    font-weight: bold;
+    transition: 0.2s;
+}
 
+.add-button:hover {
+    background: #e6c200;
+
+    color: #111111;
+}
+
+.add-button:active {
+    transform: scale(0.98);
+}
+
+
+/* =========================================================
+   REFRESH BUTTON
+========================================================= */
+
+.refresh-button {
+    background: #374151;
+
+    color: white;
+
+    border: none;
+
+    border-radius: 6px;
+
+    padding: 9px 16px;
+
+    font-size: 13px;
+
+    cursor: pointer;
+
+    transition: 0.2s;
 }
 
 .refresh-button:hover {
-
-    opacity: 0.9;
-
+    background: #111827;
 }
 
 
-/* =====================================================
-   TABLE
-===================================================== */
+/* =========================================================
+   FLC TABLE
+========================================================= */
 
-.table-container {
+.flc-table-container {
+    width: 100%;
 
     overflow-x: auto;
-
 }
 
-table {
-
+.flc-table {
     width: 100%;
 
     border-collapse: collapse;
 
+    min-width: 850px;
 }
 
-thead {
-
-    background: #f9fafb;
-
+.flc-table thead {
+    background: #f8fafc;
 }
 
-th {
+.flc-table th {
+    padding: 15px 14px;
 
-    text-align: left;
-
-    padding: 14px 18px;
+    text-align: center;
 
     font-size: 13px;
 
-    color: #6b7280;
+    font-weight: 700;
+
+    color: #374151;
+
+    border-bottom:
+        2px solid #e5e7eb;
+
+    white-space: nowrap;
+}
+
+.flc-table td {
+    padding: 14px;
+
+    text-align: center;
+
+    font-size: 14px;
 
     border-bottom:
         1px solid #e5e7eb;
 
+    vertical-align: middle;
 }
-
-td {
-
-    padding: 15px 18px;
-
-    border-bottom:
-        1px solid #f0f0f0;
-
-    font-size: 14px;
-
-}
-
-tbody tr:hover {
-
-    background: #f9fafb;
-
-}
-
-
-/* =====================================================
-   STATUS BADGE
-===================================================== */
-
-.badge {
-
-    display: inline-flex;
-
-    align-items: center;
-
-    gap: 7px;
-
-    padding: 6px 10px;
-
-    border-radius: 20px;
-
-    font-size: 12px;
-
-    font-weight: bold;
-
-}
-
-.badge::before {
-
-    content: "";
-
-    width: 7px;
-
-    height: 7px;
-
-    border-radius: 50%;
-
-}
-
-.badge.connected {
-
-    background: #dcfce7;
-
-    color: #166534;
-
-}
-
-.badge.connected::before {
-
-    background: #22c55e;
-
-}
-
-.badge.offline {
-
-    background: #fee2e2;
-
-    color: #991b1b;
-
-}
-
-.badge.offline::before {
-
-    background: #ef4444;
-
-}
-
-
-/* =====================================================
-   PRODUCT
-===================================================== */
-
-.product-empty {
-
-    padding: 35px;
-
-    text-align: center;
-
-    color: #6b7280;
-
-}
-
-.product-grid {
-
-    padding: 25px;
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(3, 1fr);
-
-    gap: 15px;
-
-}
-
-.product-item {
-
-    background: #f9fafb;
-
-    padding: 18px;
-
-    border-radius: 8px;
-
-}
-
-.product-item span {
-
-    display: block;
-
-    font-size: 12px;
-
-    color: #6b7280;
-
-    margin-bottom: 7px;
-
-}
-
-.product-item strong {
-
-    font-size: 17px;
-
-}
-
-.hidden {
-
-    display: none;
-
-}
-
-
-/* =====================================================
-   TCP LOG
-===================================================== */
-
-.tcp-log {
-
-    background: #111827;
-
-    color: #d1d5db;
-
-    min-height: 180px;
-
-    max-height: 300px;
-
-    overflow-y: auto;
-
-    padding: 15px;
-
-    font-family:
-        Consolas,
-        monospace;
-
-    font-size: 13px;
-
-}
-
-.log-line {
-
-    padding: 4px 0;
-
-    border-bottom:
-        1px solid #1f2937;
-
-}
-
-
-/* =====================================================
-   RESPONSIVE
-===================================================== */
-
-@media (max-width: 900px) {
-
-    .summary {
-
-        grid-template-columns:
-            repeat(2, 1fr);
-
-    }
-
-    .product-grid {
-
-        grid-template-columns:
-            repeat(2, 1fr);
-
-    }
-
-}
-
-@media (max-width: 600px) {
-
-    .header {
-
-        flex-direction: column;
-
-        align-items: flex-start;
-
-        gap: 15px;
-
-    }
-
-    .summary {
-
-        grid-template-columns: 1fr;
-
-        padding: 20px;
-
-    }
-
-    .container {
-
-        padding: 0 20px 20px;
-
-    }
-
-    .product-grid {
-
-        grid-template-columns: 1fr;
-
-    }
-
-}
-/* =====================================================
-   FACTORY DATA ENTRY
-===================================================== */
-
-.factory-form {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(280px, 1fr));
-    gap: 20px 30px;
-    padding: 25px 30px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.form-group label {
-    font-size: 14px;
-    font-weight: 600;
-    color: #334155;
-}
-
-.form-group input {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 12px 14px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    background: #ffffff;
-    color: #1e293b;
-    font-size: 15px;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.form-group input:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
-}
-
-.form-group input::placeholder {
-    color: #94a3b8;
-}
-
-/* =====================================================
-   BUTTONS
-===================================================== */
-
-.entry-actions {
-    display: flex;
-    gap: 12px;
-    padding: 0 30px 25px;
-}
-
-.send-display-button,
-.clear-entry-button {
-    border: none;
-    border-radius: 8px;
-    padding: 12px 22px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.send-display-button {
-    background: #2563eb;
-    color: white;
-}
-
-.send-display-button:hover {
-    background: #1d4ed8;
-}
-
-.clear-entry-button {
-    background: #e2e8f0;
-    color: #334155;
-}
-
-.clear-entry-button:hover {
-    background: #cbd5e1;
-}
-
-/* =====================================================
-   STATUS
-===================================================== */
-
-.entry-status {
-    padding: 7px 14px;
-    border-radius: 20px;
-    background: #f1f5f9;
-    color: #475569;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.entry-message {
-    margin: 0 30px 20px;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-/* =====================================================
-   MOBILE / SMALL SCREEN
-===================================================== */
-
-@media (max-width: 800px) {
-
-    .factory-form {
-        grid-template-columns: 1fr;
-    }
-
-}
-/* =====================================================
-   FACTORY DATA ENTRY - SELECT
-===================================================== */
-
-.form-group select {
-
-    width: 100%;
-
-    box-sizing: border-box;
-
-    padding: 12px 14px;
-
-    border: 1px solid #d1d5db;
-
-    border-radius: 8px;
-
-    background: #ffffff;
-
-    color: #1e293b;
-
-    font-size: 15px;
-
-    outline: none;
-
-    cursor: pointer;
-
-}
-
-
-.form-group select:focus {
-
-    border-color: #2563eb;
-
-    box-shadow:
-        0 0 0 3px
-        rgba(37, 99, 235, 0.10);
-
-}
-
-
-.form-group input[readonly] {
-
-    background: #f8fafc;
-
-    color: #475569;
-
-    cursor: not-allowed;
-
-}
-/* =====================================================
-   BAY EDIT BUTTON
-===================================================== */
-
-.edit-bay-button {
-
-    border: none;
-
-    background: #2563eb;
-
-    color: white;
-
-    padding: 8px 14px;
-
-    border-radius: 6px;
-
-    font-size: 13px;
-
-    font-weight: 600;
-
-    cursor: pointer;
-
-}
-
-
-.edit-bay-button:hover {
-
-    background: #1d4ed8;
-
-}
-
-/* =====================================================
-   FLC CREATION
-===================================================== */
-
-.flc-panel {
-
-    overflow: hidden;
-
-}
-
-
-.flc-table-container {
-
-    width: 100%;
-
-    overflow-x: auto;
-
-}
-
-
-.flc-table {
-
-    width: 100%;
-
-    border-collapse: collapse;
-
-    background: white;
-
-}
-
-
-.flc-table th {
-
-    background: #f1f5f9;
-
-    color: #334155;
-
-    font-weight: 700;
-
-    text-align: left;
-
-    padding: 14px 12px;
-
-    border-bottom:
-        1px solid #dbe1e8;
-
-    white-space: nowrap;
-
-}
-
-
-.flc-table td {
-
-    padding: 13px 12px;
-
-    border-bottom:
-        1px solid #e2e8f0;
-
-    color: #334155;
-
-    white-space: nowrap;
-
-}
-
 
 .flc-table tbody tr:hover {
-
-    background: #f8fafc;
-
+    background: #f9fafb;
 }
 
 
-.flc-table tr.editing {
+/* =========================================================
+   FLC TABLE - S.NO
+========================================================= */
 
-    background: #eff6ff;
-
+.flc-table th:nth-child(1),
+.flc-table td:nth-child(1) {
+    width: 80px;
 }
 
 
-.flc-input {
+/* =========================================================
+   FLC TABLE - BAY NO
+========================================================= */
 
-    width: 100%;
-
-    min-width: 100px;
-
-    box-sizing: border-box;
-
-    padding: 8px 9px;
-
-    border:
-        1px solid #94a3b8;
-
-    border-radius: 5px;
-
-    font-size: 14px;
-
+.flc-table th:nth-child(2),
+.flc-table td:nth-child(2) {
+    width: 110px;
 }
 
-
-.flc-input:focus {
-
-    outline: none;
-
-    border-color: #2563eb;
-
-}
-
-
-.flc-actions {
-
-    display: flex;
-
-    gap: 6px;
-
-}
-
-
-.add-button {
-
-    background: #2563eb;
-
-    color: white;
-
-    border: none;
-
-    border-radius: 6px;
-
-    padding: 10px 16px;
-
-    font-weight: 600;
-
-    cursor: pointer;
-
-}
-
-
-.add-button:hover {
-
-    background: #1d4ed8;
-
-}
-
-
-.edit-flc-button {
-
-    background: #2563eb;
-
-    color: white;
-
-    border: none;
-
-    border-radius: 5px;
-
-    padding: 7px 12px;
-
-    cursor: pointer;
-
-}
-
-
-.delete-flc-button {
-
-    background: #dc2626;
-
-    color: white;
-
-    border: none;
-
-    border-radius: 5px;
-
-    padding: 7px 12px;
-
-    cursor: pointer;
-
-}
-
-
-.save-flc-button {
-
-    background: #16a34a;
-
-    color: white;
-
-    border: none;
-
-    border-radius: 5px;
-
-    padding: 7px 12px;
-
-    cursor: pointer;
-
-}
-
-
-.cancel-flc-button {
-
-    background: #64748b;
-
-    color: white;
-
-    border: none;
-
-    border-radius: 5px;
-
-    padding: 7px 12px;
-
-    cursor: pointer;
-
-}
-
-
-.edit-flc-button:hover {
-
-    background: #1d4ed8;
-
-}
-
-
-.delete-flc-button:hover {
-
-    background: #b91c1c;
-
-}
-
-
-.save-flc-button:hover {
-
-    background: #15803d;
-
-}
-
-
-.flc-status {
-
-    display: inline-block;
-
-    padding: 5px 9px;
-
-    border-radius: 20px;
-
-    font-size: 11px;
-
+.bay-number {
     font-weight: 700;
 
+    font-size: 15px;
 }
 
 
-.flc-status.published {
+/* =========================================================
+   FLC TABLE - ORDER ID
+========================================================= */
 
-    background: #dcfce7;
+.flc-table th:nth-child(3),
+.flc-table td:nth-child(3) {
+    min-width: 180px;
+}
 
-    color: #15803d;
+.order-id {
+    font-weight: 600;
 
+    color: #111827;
 }
 
 
-.flc-status.editing-status {
+/* =========================================================
+   CONNECTION STATUS
+========================================================= */
 
-    background: #dbeafe;
-
-    color: #1d4ed8;
-
-}
-
-
-.empty-row {
-
-    text-align: center;
-
-    padding: 40px !important;
-
-    color: #64748b;
-
-}
-/* =====================================================
-   FLC ADD FORM
-===================================================== */
-
-.flc-modal {
-
-    position: fixed;
-
-    inset: 0;
-
-    background:
-        rgba(0, 0, 0, 0.55);
-
-    display: flex;
+.connection-status {
+    display: inline-flex;
 
     align-items: center;
 
     justify-content: center;
 
+    gap: 7px;
+
+    min-width: 115px;
+
+    padding: 7px 12px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+.connection-status.connected {
+    background: #dcfce7;
+
+    color: #166534;
+}
+
+.connection-status.disconnected {
+    background: #fee2e2;
+
+    color: #991b1b;
+}
+
+.connection-status.connecting {
+    background: #fef3c7;
+
+    color: #92400e;
+}
+
+
+/* =========================================================
+   STATUS DOTS
+========================================================= */
+
+.status-indicator {
+    width: 8px;
+
+    height: 8px;
+
+    border-radius: 50%;
+
+    display: inline-block;
+}
+
+.status-indicator.green {
+    background: #16a34a;
+}
+
+.status-indicator.red {
+    background: #dc2626;
+}
+
+.status-indicator.yellow {
+    background: #d97706;
+}
+
+
+/* =========================================================
+   COMMUNICATION STATUS
+========================================================= */
+
+.communication-status {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 7px;
+
+    min-width: 145px;
+
+    padding: 7px 12px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+.communication-status.communicating {
+    background: #dbeafe;
+
+    color: #1e40af;
+}
+
+.communication-status.not-communicating {
+    background: #f3f4f6;
+
+    color: #4b5563;
+}
+
+
+/* =========================================================
+   ACTION BUTTONS
+========================================================= */
+
+.action-buttons {
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 7px;
+}
+
+.edit-flc-button,
+.delete-flc-button {
+    border: none;
+
+    border-radius: 5px;
+
+    padding: 7px 12px;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+
+/* =========================================================
+   EDIT BUTTON - YELLOW
+========================================================= */
+
+.edit-flc-button {
+    background: #ffd600;
+
+    color: #111111;
+}
+
+.edit-flc-button:hover {
+    background: #e6c200;
+
+    color: #111111;
+}
+
+
+/* =========================================================
+   DELETE BUTTON - RED
+========================================================= */
+
+.delete-flc-button {
+    background: #fee2e2;
+
+    color: #b91c1c;
+}
+
+.delete-flc-button:hover {
+    background: #fecaca;
+}
+
+
+/* =========================================================
+   EMPTY TABLE
+========================================================= */
+
+.empty-row {
+    padding: 35px !important;
+
+    color: #6b7280;
+
+    font-size: 14px !important;
+
+    text-align: center;
+}
+
+
+/* =========================================================
+   FLC MODAL
+========================================================= */
+
+.flc-modal {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    background:
+        rgba(15, 23, 42, 0.65);
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
     z-index: 9999;
 
+    padding: 20px;
 }
-
 
 .flc-modal.hidden {
-
     display: none;
-
 }
 
 
+/* =========================================================
+   MODAL BOX
+========================================================= */
+
 .flc-modal-box {
+    width: 100%;
 
-    width: 700px;
-
-    max-width: 92vw;
-
-    max-height: 90vh;
-
-    overflow-y: auto;
+    max-width: 520px;
 
     background: white;
 
@@ -1036,231 +606,837 @@ tbody tr:hover {
         0 20px 50px
         rgba(0, 0, 0, 0.25);
 
+    overflow: hidden;
 }
 
 
+/* =========================================================
+   MODAL HEADER
+========================================================= */
+
 .flc-modal-header {
-
     display: flex;
-
-    align-items: center;
 
     justify-content: space-between;
 
-    padding: 20px 24px;
+    align-items: flex-start;
+
+    padding: 22px 25px;
 
     border-bottom:
-        1px solid #e2e8f0;
-
+        1px solid #e5e7eb;
 }
-
 
 .flc-modal-header h2 {
+    font-size: 20px;
 
-    margin: 0;
-
+    color: #111827;
 }
-
 
 .flc-modal-header p {
+    margin-top: 5px;
 
-    margin: 5px 0 0;
+    color: #6b7280;
 
-    color: #64748b;
-
+    font-size: 13px;
 }
 
 
+/* =========================================================
+   CLOSE BUTTON
+========================================================= */
+
 .close-flc-button {
+    width: 32px;
+
+    height: 32px;
 
     border: none;
 
-    background: transparent;
+    background: #f3f4f6;
 
-    font-size: 30px;
+    color: #374151;
+
+    border-radius: 5px;
+
+    font-size: 22px;
+
+    line-height: 1;
 
     cursor: pointer;
-
-    color: #64748b;
-
 }
 
+.close-flc-button:hover {
+    background: #e5e7eb;
+}
+
+
+/* =========================================================
+   FLC FORM
+========================================================= */
 
 .flc-form {
-
-    display: grid;
-
-    grid-template-columns:
-        1fr 1fr;
-
-    gap: 18px;
-
-    padding: 24px;
-
+    padding: 25px;
 }
-
 
 .flc-form-group {
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 7px;
-
+    margin-bottom: 18px;
 }
 
+.flc-form-group:last-child {
+    margin-bottom: 0;
+}
 
 .flc-form-group label {
+    display: block;
+
+    margin-bottom: 7px;
 
     font-size: 13px;
 
     font-weight: 700;
 
-    color: #334155;
-
+    color: #374151;
 }
 
-
 .flc-form-group input,
-
 .flc-form-group select {
-
     width: 100%;
-
-    box-sizing: border-box;
 
     padding: 11px 12px;
 
-    border:
-        1px solid #cbd5e1;
+    border: 1px solid #d1d5db;
 
     border-radius: 6px;
 
+    background: white;
+
+    color: #111827;
+
     font-size: 14px;
-
-}
-
-
-.flc-form-group input:focus,
-
-.flc-form-group select:focus {
 
     outline: none;
 
-    border-color: #2563eb;
-
+    transition: 0.2s;
 }
 
+.flc-form-group input:focus,
+.flc-form-group select:focus {
+    border-color: #ffd600;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(255, 214, 0, 0.20);
+}
+
+.flc-form-group input[readonly] {
+    background: #f3f4f6;
+
+    color: #6b7280;
+
+    cursor: not-allowed;
+}
 
 .flc-form-group small {
+    display: block;
 
-    color: #64748b;
+    margin-top: 6px;
+
+    color: #6b7280;
 
     font-size: 11px;
-
 }
 
 
-.flc-modal-actions {
+/* =========================================================
+   MODAL ACTIONS
+========================================================= */
 
+.flc-modal-actions {
     display: flex;
 
     justify-content: flex-end;
 
     gap: 10px;
 
-    padding: 18px 24px;
+    padding: 18px 25px;
+
+    background: #f8fafc;
 
     border-top:
-        1px solid #e2e8f0;
-
+        1px solid #e5e7eb;
 }
 
-
-.flc-modal-actions button {
-
-    padding: 10px 18px;
-
-    border-radius: 6px;
-
-    border: none;
-
-    cursor: pointer;
-
-    font-weight: 700;
-
-}
-
-
-.flc-modal-actions
+.cancel-flc-button,
 .save-flc-button {
-
-    background: #16a34a;
-
-    color: white;
-
-}
-
-
-.flc-modal-actions
-.cancel-flc-button {
-
-    background: #64748b;
-
-    color: white;
-
-}
-
-
-.flc-modal-actions
-.save-flc-button:hover {
-
-    background: #15803d;
-
-}
-
-
-.flc-modal-actions
-.cancel-flc-button:hover {
-
-    background: #475569;
-
-}
-
-
-.add-button {
-
-    background: #2563eb;
-
-    color: white;
-
     border: none;
 
     border-radius: 6px;
 
     padding: 10px 18px;
 
+    font-size: 13px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.cancel-flc-button {
+    background: #e5e7eb;
+
+    color: #374151;
+}
+
+.cancel-flc-button:hover {
+    background: #d1d5db;
+}
+
+
+/* =========================================================
+   SAVE BUTTON - YELLOW
+========================================================= */
+
+.save-flc-button {
+    background: #ffd600;
+
+    color: #111111;
+}
+
+.save-flc-button:hover {
+    background: #e6c200;
+
+    color: #111111;
+}
+
+
+/* =========================================================
+   NORMAL BAY STATUS TABLE
+========================================================= */
+
+.table-container {
+    width: 100%;
+
+    overflow-x: auto;
+}
+
+.table-container table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    min-width: 850px;
+}
+
+.table-container th {
+    background: #f8fafc;
+
+    padding: 14px;
+
+    text-align: center;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    color: #374151;
+
+    border-bottom:
+        2px solid #e5e7eb;
+}
+
+.table-container td {
+    padding: 13px;
+
+    text-align: center;
+
+    font-size: 13px;
+
+    border-bottom:
+        1px solid #e5e7eb;
+}
+
+.table-container tbody tr:hover {
+    background: #f9fafb;
+}
+
+.loading {
+    padding: 30px !important;
+
+    color: #6b7280;
+
+    text-align: center;
+}
+
+
+/* =========================================================
+   LATEST PRODUCT
+========================================================= */
+
+.product-item {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 15px 25px;
+
+    border-bottom:
+        1px solid #e5e7eb;
+}
+
+.product-item:last-child {
+    border-bottom: none;
+}
+
+.product-item span {
+    color: #6b7280;
+
+    font-size: 13px;
+
+    font-weight: 600;
+}
+
+.product-item strong {
+    color: #111827;
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   TCP MONITOR
+========================================================= */
+
+.tcp-log {
+    height: 300px;
+
+    overflow-y: auto;
+
+    /* YELLOW TCP AREA */
+    background: #ffd600;
+
+    /* BLACK TEXT */
+    color: #111111;
+
+    padding: 15px 20px;
+
+    font-family:
+        Consolas,
+        Monaco,
+        monospace;
+
+    font-size: 12px;
+
+    line-height: 1.7;
+}
+
+.log-line {
+    padding: 3px 0;
+
+    border-bottom:
+        1px solid
+        rgba(0, 0, 0, 0.12);
+
+    color: #111111;
+}
+
+
+/* =========================================================
+   CLEAR TCP LOG BUTTON
+========================================================= */
+
+#clearLogButton {
+    background: #ffd600;
+
+    color: #111111;
+
+    border: 1px solid #ffd600;
+
+    border-radius: 6px;
+
+    padding: 9px 16px;
+
+    font-size: 13px;
+
     font-weight: 700;
 
     cursor: pointer;
 
+    transition: 0.2s;
+}
+
+#clearLogButton:hover {
+    background: #e6c200;
+
+    border-color: #e6c200;
 }
 
 
-.add-button:hover {
+/* =========================================================
+   SCROLLBAR
+========================================================= */
 
-    background: #1d4ed8;
+::-webkit-scrollbar {
+    width: 8px;
 
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #9ca3af;
+
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
 }
 
 
-@media (max-width: 700px) {
+/* =========================================================
+   RESPONSIVE - TABLET
+========================================================= */
 
-    .flc-form {
+@media (max-width: 1000px) {
 
-        grid-template-columns: 1fr;
-
+    .summary {
+        grid-template-columns:
+            repeat(2, 1fr);
     }
 
+    .header {
+        padding: 20px;
+    }
+
+    .container,
+    .summary {
+        width:
+            calc(100% - 30px);
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVE - MOBILE
+========================================================= */
+
+@media (max-width: 650px) {
+
+    .header {
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 15px;
+    }
+
+    .header h1 {
+        font-size: 21px;
+    }
+
+    .summary {
+        grid-template-columns: 1fr;
+
+        width:
+            calc(100% - 20px);
+    }
+
+    .container {
+        width:
+            calc(100% - 20px);
+    }
+
+    .panel-header {
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 15px;
+    }
+
+    .add-button,
+    .refresh-button {
+        width: 100%;
+    }
+
+    .flc-modal-box {
+        max-height: 90vh;
+
+        overflow-y: auto;
+    }
+
+    .flc-modal-actions {
+        flex-direction: column;
+    }
+
+    .cancel-flc-button,
+    .save-flc-button {
+        width: 100%;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+}
+
+
+
+/* Show buttons for selected row */
+
+.flc-table tbody tr.selected-row .action-buttons {
+    display: flex;
+}
+
+
+/* Make S.No clickable */
+
+.flc-table tbody td:first-child {
+    cursor: pointer;
+    user-select: none;
+}
+
+
+/* Highlight selected S.No */
+
+.flc-table tbody tr.selected-row td:first-child {
+    background: #ffd600;
+    color: #111111;
+    font-weight: 800;
+}
+
+
+/* Small hover indication */
+
+.flc-table tbody td:first-child:hover {
+    background: #fff3a3;
+}
+.flc-table .action-buttons {
+    display: none;
+}
+
+.flc-table tbody tr.selected-row .action-buttons {
+    display: flex;
+}
+
+.flc-table tbody td.sno-cell {
+    cursor: pointer;
+    user-select: none;
+}
+
+.flc-table tbody td.sno-cell:hover {
+    background: #fff3a3;
+}
+
+.flc-table tbody tr.selected-row td.sno-cell {
+    background: #ffd600;
+    color: #111111;
+    font-weight: 800;
+}
+/* =====================================================
+   FLC ACTION BUTTONS
+   HIDDEN UNTIL S.NO. IS CLICKED
+===================================================== */
+
+.flc-table .action-buttons {
+    display: none !important;
+}
+
+
+/* Show actions for selected row */
+
+.flc-table tbody tr.selected-row .action-buttons {
+    display: flex !important;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 7px;
+}
+
+
+/* S.No. clickable */
+
+.flc-table tbody td.sno-cell {
+    cursor: pointer;
+
+    user-select: none;
+}
+
+
+/* S.No. hover */
+
+.flc-table tbody td.sno-cell:hover {
+    background: #fff3a3;
+}
+
+
+/* Selected S.No. */
+
+.flc-table tbody tr.selected-row td.sno-cell {
+    background: #ffd600;
+
+    color: #111111;
+
+    font-weight: 800;
+}
+/* =====================================================
+   FLC S.NO CLICK
+   ===================================================== */
+
+.flc-table .sno-cell {
+    cursor: pointer;
+    user-select: none;
+    font-weight: 700;
+}
+
+.flc-table .sno-cell:hover {
+    background: #fff3a3;
+}
+
+
+/* Selected S.No. row */
+
+.flc-table tbody tr.selected-row {
+    background: #fffde7 !important;
+}
+
+
+/* Action buttons hidden by default */
+
+.flc-table tbody .action-buttons {
+    display: none;
+}
+
+
+/* Action buttons visible after S.No. click */
+
+.flc-table tbody tr.selected-row .action-buttons {
+    display: flex !important;
+
+    justify-content: center;
+    align-items: center;
+
+    gap: 7px;
+}
+
+
+/* EDIT */
+
+.flc-table .edit-flc-button {
+    background: #ffd600 !important;
+    color: #111111 !important;
+
+    border: none;
+    border-radius: 5px;
+
+    padding: 7px 12px;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+
+/* DELETE */
+
+.flc-table .delete-flc-button {
+    background: #fee2e2 !important;
+    color: #b91c1c !important;
+
+    border: none;
+    border-radius: 5px;
+
+    padding: 7px 12px;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+/* =====================================================
+   S.NO CLICK - SHOW ACTION BUTTONS
+===================================================== */
+
+/* S.No. can be clicked */
+
+.flc-table tbody td.sno-cell {
+    cursor: pointer;
+    user-select: none;
+}
+
+
+/* Hover S.No. */
+
+.flc-table tbody td.sno-cell:hover {
+    background: #fff3a3;
+}
+
+
+/* Selected row */
+
+.flc-table tbody tr.selected-row {
+    background: #fffde7;
+}
+
+
+/* Selected S.No. */
+
+.flc-table tbody tr.selected-row td.sno-cell {
+    background: #ffd600;
+    color: #111111;
+    font-weight: 800;
+}
+
+
+/* Hide action buttons */
+
+.flc-table tbody tr:not(.selected-row) .action-buttons {
+    display: none;
+}
+
+
+/* Show action buttons after S.No. click */
+
+.flc-table tbody tr.selected-row .action-buttons {
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    gap: 7px;
+}
+
+
+/* EDIT button */
+
+.flc-table .edit-flc-button {
+    background: #ffd600;
+    color: #111111;
+
+    border: none;
+    border-radius: 5px;
+
+    padding: 7px 12px;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+
+/* DELETE button */
+
+.flc-table .delete-flc-button {
+    background: #fee2e2;
+    color: #b91c1c;
+
+    border: none;
+    border-radius: 5px;
+
+    padding: 7px 12px;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+
+/* EDIT hover */
+
+.flc-table .edit-flc-button:hover {
+    background: #e6c200;
+}
+
+
+/* DELETE hover */
+
+.flc-table .delete-flc-button:hover {
+    background: #fecaca;
+}
+/* =====================================================
+   FINAL FLC ACTION BUTTON FIX
+===================================================== */
+
+.flc-table .sno-cell {
+    cursor: pointer !important;
+    user-select: none !important;
+}
+
+
+/* S.No hover */
+
+.flc-table .sno-cell:hover {
+    background: #fff3a3 !important;
+}
+
+
+/* Selected S.No */
+
+.flc-table tr.selected-row .sno-cell {
+    background: #ffd600 !important;
+    color: #111111 !important;
+}
+
+
+/* Hide buttons initially */
+
+.flc-table tr:not(.selected-row) .action-buttons {
+    display: none !important;
+}
+
+
+/* Show buttons after S.No click */
+
+.flc-table tr.selected-row .action-buttons {
+    display: flex !important;
+
+    justify-content: center !important;
+
+    align-items: center !important;
+
+    gap: 7px !important;
+}
+
+
+/* EDIT */
+
+.flc-table .edit-flc-button {
+    background: #ffd600 !important;
+
+    color: #111111 !important;
+
+    border: none !important;
+
+    border-radius: 5px !important;
+
+    padding: 7px 12px !important;
+
+    cursor: pointer !important;
+}
+
+
+/* DELETE */
+
+.flc-table .delete-flc-button {
+    background: #fee2e2 !important;
+
+    color: #b91c1c !important;
+
+    border: none !important;
+
+    border-radius: 5px !important;
+
+    padding: 7px 12px !important;
+
+    cursor: pointer !important;
 }

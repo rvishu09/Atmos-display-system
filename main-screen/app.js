@@ -5,10 +5,17 @@
 
 
 // =====================================================
+// CONFIGURATION
+// =====================================================
+
+const BACKEND_URL = "http://localhost:5000";
+
+
+// =====================================================
 // SOCKET.IO CONNECTION
 // =====================================================
 
-const socket = io("http://localhost:5000");
+const socket = io(BACKEND_URL);
 
 
 // =====================================================
@@ -19,10 +26,74 @@ let bays = [];
 
 let lastProducts = {};
 
+let flcProducts = {};
 
 
 // =====================================================
-// POPULATE BAY DROPDOWN
+// COMMUNICATION STATUS
+// =====================================================
+
+let communicationStatus = {};
+
+let communicationTimers = {};
+
+const COMMUNICATION_TIMEOUT = 15000;
+
+
+// =====================================================
+// UTILITY
+// =====================================================
+
+function normalizeBayNo(value) {
+
+    if (
+        value === undefined ||
+        value === null ||
+        value === ""
+    ) {
+        return "";
+    }
+
+    return String(value);
+}
+
+
+// =====================================================
+// ESCAPE HTML
+// =====================================================
+
+function escapeHTML(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+// =====================================================
+// FORMAT BAY NUMBER
+// 1 -> 001
+// 2 -> 002
+// 10 -> 010
+// =====================================================
+
+function formatBayNo(value) {
+
+    const number = parseInt(value, 10);
+
+    if (Number.isNaN(number)) {
+        return String(value ?? "");
+    }
+
+    return String(number).padStart(3, "0");
+}
+
+
+// =====================================================
+// POPULATE FLC BAY DROPDOWN
 // =====================================================
 
 function populateFLCBayDropdown() {
@@ -31,7 +102,6 @@ function populateFLCBayDropdown() {
         document.getElementById("flcBayNo");
 
     if (!baySelect) {
-        console.warn("[FLC BAY] flcBayNo not found");
         return;
     }
 
@@ -45,33 +115,26 @@ function populateFLCBayDropdown() {
 
     baySelect.appendChild(defaultOption);
 
-
     bays.forEach(bay => {
 
         const bayNo =
-            bay["Bay No"];
+            normalizeBayNo(bay["Bay No"]);
 
-        if (
-            bayNo === undefined ||
-            bayNo === null ||
-            bayNo === ""
-        ) {
+        if (!bayNo) {
             return;
         }
 
         const option =
             document.createElement("option");
 
-        option.value =
-            String(bayNo);
+        option.value = bayNo;
 
         option.textContent =
-            `Bay ${bayNo}`;
+            `Bay ${formatBayNo(bayNo)}`;
 
         baySelect.appendChild(option);
 
     });
-
 
     console.log(
         "[FLC BAY DROPDOWN] Updated:",
@@ -80,147 +143,165 @@ function populateFLCBayDropdown() {
     );
 }
 
+
 // =====================================================
-// BAY SELECTION
-// AUTO FILL IP ADDRESS + WAY NO.
+// FLC BAY SELECTION
+// AUTO FILL IP
 // =====================================================
 
-            document.addEventListener(
-                "DOMContentLoaded",
-                () => {
+function setupFLCBaySelection() {
 
-                const baySelect =
-                document.getElementById("entryBayNo");
+    const baySelect =
+        document.getElementById("flcBayNo");
 
-            if (!baySelect) {
-                console.log(
-                    "[BAY] entryBayNo not used on this screen"
-                );
-                return;
-                }
+    if (!baySelect) {
+        return;
+    }
 
+    baySelect.addEventListener(
+        "change",
+        function () {
 
-        baySelect.addEventListener(
-            "change",
-            function () {
+            const selectedBayNo =
+                normalizeBayNo(this.value);
 
-                const selectedBayNo =
-                    String(
-                        this.value
-                    );
-
-
-                console.log(
-                    "[BAY SELECTED]",
-                    selectedBayNo
+            const selectedBay =
+                bays.find(
+                    bay =>
+                        normalizeBayNo(
+                            bay["Bay No"]
+                        ) === selectedBayNo
                 );
 
-
-                const selectedBay =
-                    bays.find(
-                        bay =>
-                            String(
-                                bay["Bay No"]
-                            ) === selectedBayNo
-                    );
-
-
-                if (!selectedBay) {
-
-                    document.getElementById(
-                        "entryIP"
-                    ).value = "";
-
-
-                    document.getElementById(
-                        "entryWayNo"
-                    ).value = "";
-
-                    return;
-
-                }
-
-
-                console.log(
-                    "[SELECTED BAY DATA]",
-                    selectedBay
+            const ipInput =
+                document.getElementById(
+                    "flcIPAddress"
                 );
 
-
-                // AUTO IP
-
-                const ipInput =
-                    document.getElementById(
-                        "entryIP"
-                    );
+            if (!selectedBay) {
 
                 if (ipInput) {
-
-                    ipInput.value =
-                        selectedBay[
-                            "IP Address"
-                        ] || "";
-
+                    ipInput.value = "";
                 }
 
+                return;
+            }
 
-                // AUTO WAY NO.
+            if (ipInput) {
 
-                const wayInput =
-                    document.getElementById(
-                        "entryWayNo"
-                    );
-
-                if (wayInput) {
-
-                    wayInput.value =
-                        selectedBay[
-                            "Way No"
-                        ] || "";
-
-                }
+                ipInput.value =
+                    selectedBay["IP Address"] || "";
 
             }
-        );
 
-    }
-);
+        }
+    );
+}
 
 
 // =====================================================
-// GET ALL BAYS
+// FACTORY BAY SELECTION
+// =====================================================
+
+function setupFactoryBaySelection() {
+
+    const baySelect =
+        document.getElementById("entryBayNo");
+
+    if (!baySelect) {
+        return;
+    }
+
+    baySelect.addEventListener(
+        "change",
+        function () {
+
+            const selectedBayNo =
+                normalizeBayNo(this.value);
+
+            const selectedBay =
+                bays.find(
+                    bay =>
+                        normalizeBayNo(
+                            bay["Bay No"]
+                        ) === selectedBayNo
+                );
+
+            const ipInput =
+                document.getElementById("entryIP");
+
+            const wayInput =
+                document.getElementById("entryWayNo");
+
+            if (!selectedBay) {
+
+                if (ipInput) {
+                    ipInput.value = "";
+                }
+
+                if (wayInput) {
+                    wayInput.value = "";
+                }
+
+                return;
+            }
+
+            if (ipInput) {
+                ipInput.value =
+                    selectedBay["IP Address"] || "";
+            }
+
+            if (wayInput) {
+                wayInput.value =
+                    selectedBay["Way No"] || "";
+            }
+
+        }
+    );
+}
+
+
+// =====================================================
+// LOAD ALL BAYS
 // =====================================================
 
 async function loadBays() {
 
     try {
 
-        const response = await fetch(
-            "http://localhost:5000/api/bays"
-        );
-
-        const result = await response.json();
-
-        if (!result.success) {
-
-            throw new Error(
-                "Unable to load Bays"
+        const response =
+            await fetch(
+                `${BACKEND_URL}/api/bays`
             );
 
+        const result =
+            await response.json();
+
+        if (!response.ok || !result.success) {
+
+            throw new Error(
+                result.message ||
+                "Unable to load Bays"
+            );
         }
 
-        bays = result.data || [];
+        bays =
+            result.data || [];
 
         console.log(
             "[BAYS LOADED]",
             bays
         );
-        if (typeof populateBayDropdown === "function") {
-            populateBayDropdown(bays);
-        }
+
+        initializeBayStatus();
+
         populateFLCBayDropdown();
 
+        setupFactoryBayDropdown();
+
         renderBays();
+
+        renderFLCTable();
 
     }
 
@@ -232,11 +313,11 @@ async function loadBays() {
         );
 
         addLog(
-            "ERROR: Unable to load Bay configuration"
+            "[ERROR] Unable to load Bay configuration"
         );
 
+        updateSummary();
     }
-
 }
 
 
@@ -246,17 +327,169 @@ async function loadBays() {
 
 function initializeBayStatus() {
 
-    bays.forEach(bay => {
+    bays.forEach(
+        bay => {
 
-        bay.connected = false;
+            if (
+                typeof bay.connected !==
+                "boolean"
+            ) {
 
-    });
+                bay.connected = false;
 
+            }
+
+            const bayNo =
+                normalizeBayNo(
+                    bay["Bay No"]
+                );
+
+            if (
+                communicationStatus[bayNo] ===
+                undefined
+            ) {
+
+                communicationStatus[bayNo] =
+                    false;
+
+            }
+
+        }
+    );
 }
 
 
 // =====================================================
-// RENDER BAY TABLE
+// FACTORY BAY DROPDOWN
+// =====================================================
+
+function setupFactoryBayDropdown() {
+
+    const select =
+        document.getElementById(
+            "entryBayNo"
+        );
+
+    if (!select) {
+        return;
+    }
+
+    if (
+        typeof populateBayDropdown ===
+        "function"
+    ) {
+
+        try {
+
+            populateBayDropdown(bays);
+
+        }
+
+        catch (error) {
+
+            console.warn(
+                "[ENTRY BAY] Existing dropdown function failed",
+                error
+            );
+
+        }
+
+    }
+}
+
+
+// =====================================================
+// UPDATE SUMMARY
+// =====================================================
+
+function updateSummary() {
+
+    const totalBays =
+        bays.length > 0
+            ? bays.length
+            : Object.keys(flcProducts).length;
+
+
+    const connectedBays =
+        bays.filter(
+            bay =>
+                bay.connected === true
+        ).length;
+
+
+    const communicationBays =
+        Object.values(
+            communicationStatus
+        ).filter(
+            status =>
+                status === true
+        ).length;
+
+
+    const offlineBays =
+        bays.length > 0
+            ? bays.filter(
+                bay =>
+                    bay.connected !== true
+            ).length
+            : Object.keys(flcProducts).length;
+
+
+    const totalElement =
+        document.getElementById(
+            "totalBays"
+        );
+
+    if (totalElement) {
+
+        totalElement.textContent =
+            totalBays;
+
+    }
+
+
+    const connectedElement =
+        document.getElementById(
+            "connectedBays"
+        );
+
+    if (connectedElement) {
+
+        connectedElement.textContent =
+            connectedBays;
+
+    }
+
+
+    const communicationElement =
+        document.getElementById(
+            "communicationStatusSummary"
+        );
+
+    if (communicationElement) {
+
+        communicationElement.textContent =
+            communicationBays;
+
+    }
+
+
+    const offlineElement =
+        document.getElementById(
+            "offlineBays"
+        );
+
+    if (offlineElement) {
+
+        offlineElement.textContent =
+            offlineBays;
+
+    }
+}
+
+
+// =====================================================
+// RENDER BAY STATUS
 // =====================================================
 
 function renderBays() {
@@ -266,10 +499,15 @@ function renderBays() {
             "bayTableBody"
         );
 
+
+    // Old Bay Status table was removed.
+    // Still update the summary.
+
     if (!tableBody) {
 
-        return;
+        updateSummary();
 
+        return;
     }
 
 
@@ -278,7 +516,7 @@ function renderBays() {
         tableBody.innerHTML = `
             <tr>
                 <td
-                    colspan="6"
+                    colspan="7"
                     class="loading"
                 >
                     No Bays configured
@@ -289,179 +527,149 @@ function renderBays() {
         updateSummary();
 
         return;
-
     }
 
 
     tableBody.innerHTML = "";
 
 
-    bays.forEach(bay => {
+    bays.forEach(
+        (bay, index) => {
 
-        const bayNo =
-            String(
-                bay["Bay No"] ?? ""
-            );
+            const bayNo =
+                normalizeBayNo(
+                    bay["Bay No"]
+                );
 
-        const wayNo =
-            String(
-                bay["Way No"] ?? ""
-            );
+            const ip =
+                String(
+                    bay["IP Address"] ?? ""
+                );
 
-        const ip =
-            String(
-                bay["IP Address"] ?? ""
-            );
+            const port =
+                String(
+                    bay["TCP Port"] ?? ""
+                );
 
-        const port =
-            String(
-                bay["TCP Port"] ?? ""
-            );
-
-
-        const connected =
-            bay.connected === true;
+            const connected =
+                bay.connected === true;
 
 
-        const lastProduct =
-            lastProducts[bayNo];
+            const lastProduct =
+                lastProducts[bayNo];
 
 
-        const lastProductText =
-            lastProduct
-                ? `
+            let lastProductText =
+                "--";
+
+
+            if (lastProduct) {
+
+                lastProductText = `
                     <strong>
-                        ${lastProduct.product || "--"}
+                        ${escapeHTML(
+                            lastProduct.product ||
+                            "--"
+                        )}
                     </strong>
                     <br>
                     <small>
-                        Serial: ${lastProduct.serialNo || "--"}
+                        Serial:
+                        ${escapeHTML(
+                            lastProduct.serialNo ||
+                            "--"
+                        )}
                     </small>
-                `
-                  : "--";
+                `;
+
+            }
 
 
-        const row =
-            document.createElement("tr");
+            const row =
+                document.createElement("tr");
 
 
-        row.innerHTML = `
+            row.innerHTML = `
 
-            <td>
-                <strong>
-                    ${wayNo}
-                </strong>
-            </td>
+                <td>
+                    <strong>
+                        ${index + 1}
+                    </strong>
+                </td>
 
-            <td>
-                <strong>
-                    ${bayNo}
-                </strong>
-            </td>
+                <td>
+                    <strong>
+                        ${escapeHTML(
+                            formatBayNo(bayNo)
+                        )}
+                    </strong>
+                </td>
 
-            <td>
-                ${ip}
-            </td>
+                <td>
+                    ${escapeHTML(ip)}
+                </td>
 
-            <td>
-                ${port}
-            </td>
+                <td>
+                    ${escapeHTML(port)}
+                </td>
 
-            <td>
+                <td>
 
-                ${
-                    connected
+                    ${
+                        connected
+                        ?
+                        `
+                        <span
+                            class="connection-status connected"
+                        >
+                            <span
+                                class="status-indicator green"
+                            ></span>
+                            CONNECTED
+                        </span>
+                        `
+                        :
+                        `
+                        <span
+                            class="connection-status disconnected"
+                        >
+                            <span
+                                class="status-indicator red"
+                            ></span>
+                            OFFLINE
+                        </span>
+                        `
+                    }
 
-                    ?
+                </td>
 
-                    `
-                    <span
-                        class="badge connected"
+                <td>
+                    ${lastProductText}
+                </td>
+
+                <td>
+
+                    <button
+                        class="edit-bay-button"
+                        onclick="editBay('${escapeHTML(
+                            bayNo
+                        )}')"
                     >
-                        CONNECTED
-                    </span>
-                    `
+                        EDIT
+                    </button>
 
-                    :
+                </td>
 
-                    `
-                    <span
-                        class="badge offline"
-                    >
-                        OFFLINE
-                    </span>
-                    `
-                }
-
-            </td>
-
-            <td>
-                ${lastProductText}
-            </td>
-            <td>
-
-                <button
-                    class="edit-bay-button"
-                    onclick="editBay('${bayNo}')"
-                >
-                    EDIT
-                </button>
-
-            </td>
-
-        `;
+            `;
 
 
-        tableBody.appendChild(row);
+            tableBody.appendChild(row);
 
-    });
+        }
+    );
 
 
     updateSummary();
-
-}
-
-
-// =====================================================
-// UPDATE SUMMARY
-// =====================================================
-
-function updateSummary() {
-
-    const total =
-        bays.length;
-
-
-    const connected =
-        bays.filter(
-            bay =>
-                bay.connected === true
-        ).length;
-
-
-    const offline =
-        total - connected;
-
-
-    document.getElementById(
-        "totalBays"
-    ).textContent = total;
-
-
-    document.getElementById(
-        "connectedBays"
-    ).textContent = connected;
-
-
-    document.getElementById(
-        "offlineBays"
-    ).textContent = offline;
-
-
-    updateSystemStatus(
-        connected > 0
-    );
-
 }
 
 
@@ -482,6 +690,10 @@ function updateSystemStatus(
         document.getElementById(
             "systemStatusDot"
         );
+
+    if (!status || !dot) {
+        return;
+    }
 
 
     if (connected) {
@@ -508,7 +720,7 @@ function updateSystemStatus(
 
 
 // =====================================================
-// TCP STATUS
+// TCP CONNECTION STATUS
 // =====================================================
 
 socket.on(
@@ -522,7 +734,7 @@ socket.on(
 
 
         const bayNo =
-            String(
+            normalizeBayNo(
                 data.bayNo
             );
 
@@ -530,7 +742,7 @@ socket.on(
         const bay =
             bays.find(
                 item =>
-                    String(
+                    normalizeBayNo(
                         item["Bay No"]
                     ) === bayNo
             );
@@ -539,12 +751,11 @@ socket.on(
         if (!bay) {
 
             console.warn(
-                "Bay not found:",
+                "[TCP STATUS] Bay not found:",
                 bayNo
             );
 
             return;
-
         }
 
 
@@ -554,11 +765,17 @@ socket.on(
 
         renderBays();
 
+        renderFLCTable();
+
+        updateSummary();
+
 
         if (data.connected) {
 
             addLog(
-                `[CONNECTED] Bay ${bayNo} - ${data.ipAddress}:${data.port}`
+                `[CONNECTED] Bay ${formatBayNo(
+                    bayNo
+                )} - ${data.ipAddress || ""}:${data.port || ""}`
             );
 
         }
@@ -566,7 +783,9 @@ socket.on(
         else {
 
             addLog(
-                `[OFFLINE] Bay ${bayNo}`
+                `[OFFLINE] Bay ${formatBayNo(
+                    bayNo
+                )}`
             );
 
         }
@@ -574,6 +793,84 @@ socket.on(
     }
 );
 
+
+// =====================================================
+// COMMUNICATION STATUS
+// =====================================================
+
+socket.on(
+    "communication-status",
+    data => {
+
+        console.log(
+            "[COMMUNICATION STATUS]",
+            data
+        );
+
+
+        const bayNo =
+            normalizeBayNo(
+                data.bayNo
+            );
+
+
+        if (!bayNo) {
+            return;
+        }
+
+
+        communicationStatus[bayNo] =
+            data.communicating === true;
+
+
+        if (
+            communicationTimers[bayNo]
+        ) {
+
+            clearTimeout(
+                communicationTimers[bayNo]
+            );
+
+        }
+
+
+        if (
+            data.communicating === true
+        ) {
+
+            communicationTimers[bayNo] =
+                setTimeout(
+                    () => {
+
+                        communicationStatus[
+                            bayNo
+                        ] = false;
+
+
+                        renderFLCTable();
+
+                        updateSummary();
+
+
+                        addLog(
+                            `[COMMUNICATION LOST] Bay ${formatBayNo(
+                                bayNo
+                            )} has not sent data recently`
+                        );
+
+                    },
+                    COMMUNICATION_TIMEOUT
+                );
+
+        }
+
+
+        renderFLCTable();
+
+        updateSummary();
+
+    }
+);
 
 
 // =====================================================
@@ -589,6 +886,19 @@ socket.on(
             product
         );
 
+
+        if (
+            product &&
+            product.bayNo !== undefined
+        ) {
+
+            markBayCommunicating(
+                product.bayNo
+            );
+
+        }
+
+
         updateProductOnMainScreen(
             product
         );
@@ -598,7 +908,7 @@ socket.on(
 
 
 // =====================================================
-// PRODUCT DATA FROM FACTORY DATA ENTRY
+// DISPLAY PRODUCT
 // =====================================================
 
 socket.on(
@@ -610,12 +920,86 @@ socket.on(
             product
         );
 
+
+        if (
+            product &&
+            product.bayNo !== undefined
+        ) {
+
+            markBayCommunicating(
+                product.bayNo
+            );
+
+        }
+
+
         updateProductOnMainScreen(
             product
         );
 
     }
 );
+// =====================================================
+// MARK BAY AS COMMUNICATING
+// =====================================================
+
+function markBayCommunicating(
+    bayNo
+) {
+
+    const normalized =
+        normalizeBayNo(bayNo);
+
+
+    if (!normalized) {
+        return;
+    }
+
+
+    communicationStatus[
+        normalized
+    ] = true;
+
+
+    if (
+        communicationTimers[
+            normalized
+        ]
+    ) {
+
+        clearTimeout(
+            communicationTimers[
+                normalized
+            ]
+        );
+
+    }
+
+
+    communicationTimers[
+        normalized
+    ] =
+        setTimeout(
+            () => {
+
+                communicationStatus[
+                    normalized
+                ] = false;
+
+
+                renderFLCTable();
+
+                updateSummary();
+
+            },
+            COMMUNICATION_TIMEOUT
+        );
+
+
+    renderFLCTable();
+
+    updateSummary();
+}
 
 
 // =====================================================
@@ -626,9 +1010,19 @@ function updateProductOnMainScreen(
     product
 ) {
 
+    if (!product) {
+
+        console.warn(
+            "[PRODUCT] No product data"
+        );
+
+        return;
+    }
+
+
     const bayNo =
-        String(
-            product.bayNo ?? ""
+        normalizeBayNo(
+            product.bayNo
         );
 
 
@@ -640,145 +1034,182 @@ function updateProductOnMainScreen(
         );
 
         return;
-
     }
 
 
-    // =============================================
-    // SAVE LAST PRODUCT FOR THIS BAY
-    // =============================================
+    lastProducts[
+        bayNo
+    ] = product;
 
-    lastProducts[bayNo] =
-        product;
-
-
-    // =============================================
-    // UPDATE LATEST PRODUCT SECTION
-    // =============================================
 
     displayProduct(
         product
     );
 
 
-    // =============================================
-    // UPDATE BAY TABLE
-    // =============================================
-
     renderBays();
 
+    renderFLCTable();
 
-    // =============================================
-    // UPDATE LAST DATA TIME
-    // =============================================
-
-    const lastDataTime =
-        document.getElementById(
-            "lastDataTime"
-        );
-
-
-    if (lastDataTime) {
-
-        lastDataTime.textContent =
-            new Date().toLocaleTimeString();
-
-    }
-
-
-    // =============================================
-    // LOG
-    // =============================================
 
     addLog(
-        `[DATA] Bay ${bayNo} | ` +
-        `Serial: ${product.serialNo || "--"} | ` +
-        `Product: ${product.product || "--"}`
+        `[DATA] Bay ${formatBayNo(
+            bayNo
+        )} | Serial: ${
+            product.serialNo || "--"
+        } | Product: ${
+            product.product || "--"
+        }`
     );
-
 }
+
 
 // =====================================================
 // DISPLAY LATEST PRODUCT
 // =====================================================
 
-function displayProduct(product) {
+function displayProduct(
+    product
+) {
 
     if (!product) {
-        console.warn("[PRODUCT] No product data");
         return;
     }
 
-    console.log(
-        "[LATEST PRODUCT DISPLAY]",
-        product
-    );
-
-
-    // =============================================
-    // BAY NO
-    // =============================================
 
     const bayElement =
-        document.getElementById("productBay");
+        document.getElementById(
+            "productBay"
+        );
 
-    if (bayElement) {
-        bayElement.textContent =
-            product.bayNo || "--";
-    }
-
-
-    // =============================================
-    // PRODUCT
-    // =============================================
 
     const productElement =
-        document.getElementById("productName");
+        document.getElementById(
+            "productName"
+        );
 
-    if (productElement) {
-        productElement.textContent =
-            product.product || "--";
-    }
-
-
-    // =============================================
-    // MODEL
-    // =============================================
 
     const modelElement =
-        document.getElementById("productModel");
+        document.getElementById(
+            "productModel"
+        );
 
-    if (modelElement) {
-        modelElement.textContent =
-            product.model || "--";
-    }
-
-
-    // =============================================
-    // IP ADDRESS
-    // =============================================
 
     const ipElement =
-        document.getElementById("productIP");
+        document.getElementById(
+            "productIP"
+        );
 
-    if (ipElement) {
-        ipElement.textContent =
-            product.ipAddress || "--";
+
+    if (bayElement) {
+
+        bayElement.textContent =
+            formatBayNo(
+                product.bayNo
+            );
+
     }
 
 
-    console.log(
-        "[LATEST PRODUCT] Display updated"
-    );
+    // These are kept for compatibility
+    // with your existing project.
+    // If removed from HTML, nothing happens.
 
+    if (productElement) {
+
+        productElement.textContent =
+            product.product || "--";
+
+    }
+
+
+    if (modelElement) {
+
+        modelElement.textContent =
+            product.model || "--";
+
+    }
+
+
+    if (ipElement) {
+
+        ipElement.textContent =
+            product.ipAddress || "--";
+
+    }
+
+
+    try {
+
+        localStorage.setItem(
+            "latestProductData",
+            JSON.stringify(product)
+        );
+
+    }
+
+    catch (error) {
+
+        console.warn(
+            "[STORAGE] Unable to save latest product",
+            error
+        );
+
+    }
 }
 
 
 // =====================================================
-// LOG
+// LOAD LAST PRODUCT
 // =====================================================
 
-function addLog(message) {
+function loadStoredLatestProduct() {
+
+    try {
+
+        const stored =
+            localStorage.getItem(
+                "latestProductData"
+            );
+
+
+        if (!stored) {
+            return;
+        }
+
+
+        const product =
+            JSON.parse(stored);
+
+
+        if (product) {
+
+            displayProduct(
+                product
+            );
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.warn(
+            "[STORAGE] Unable to restore product",
+            error
+        );
+
+    }
+}
+
+
+// =====================================================
+// TCP LOG
+// =====================================================
+
+function addLog(
+    message
+) {
 
     const log =
         document.getElementById(
@@ -787,9 +1218,7 @@ function addLog(message) {
 
 
     if (!log) {
-
         return;
-
     }
 
 
@@ -807,14 +1236,14 @@ function addLog(message) {
         `${new Date().toLocaleTimeString()} ${message}`;
 
 
-    log.appendChild(line);
+    log.appendChild(
+        line
+    );
 
 
     log.scrollTop =
         log.scrollHeight;
 
-
-    // Keep last 200 log lines
 
     while (
         log.children.length > 200
@@ -825,7 +1254,6 @@ function addLog(message) {
         );
 
     }
-
 }
 
 
@@ -844,6 +1272,11 @@ socket.on(
 
         addLog(
             "[SYSTEM] Dashboard connected to backend"
+        );
+
+
+        updateSystemStatus(
+            true
         );
 
 
@@ -871,6 +1304,36 @@ socket.on(
         );
 
 
+        bays.forEach(
+            bay => {
+
+                bay.connected =
+                    false;
+
+            }
+        );
+
+
+        Object.keys(
+            communicationStatus
+        ).forEach(
+            bayNo => {
+
+                communicationStatus[
+                    bayNo
+                ] = false;
+
+            }
+        );
+
+
+        renderBays();
+
+        renderFLCTable();
+
+        updateSummary();
+
+
         updateSystemStatus(
             false
         );
@@ -883,12 +1346,23 @@ socket.on(
 // REFRESH BUTTON
 // =====================================================
 
-const refreshButton = document.getElementById("refreshButton");
+const refreshButton =
+    document.getElementById(
+        "refreshButton"
+    );
+
 
 if (refreshButton) {
-    refreshButton.addEventListener("click", () => {
-        loadBays();
-    });
+
+    refreshButton.addEventListener(
+        "click",
+        () => {
+
+            loadBays();
+
+        }
+    );
+
 }
 
 
@@ -896,25 +1370,1599 @@ if (refreshButton) {
 // CLEAR LOG
 // =====================================================
 
-const clearLogButton = document.getElementById("clearLogButton");
+const clearLogButton =
+    document.getElementById(
+        "clearLogButton"
+    );
+
 
 if (clearLogButton) {
-    clearLogButton.addEventListener("click", () => {
 
-        const log = document.getElementById("tcpLog");
+    clearLogButton.addEventListener(
+        "click",
+        () => {
 
-        if (log) {
-            log.innerHTML = "";
+            const log =
+                document.getElementById(
+                    "tcpLog"
+                );
+
+
+            if (log) {
+
+                log.innerHTML = "";
+
+            }
+
         }
+    );
 
-    });
 }
 
+
 // =====================================================
-// START
+// FLC TABLE
 // =====================================================
 
-loadBays();
+function renderFLCTable() {
+
+    const tbody =
+        document.getElementById(
+            "flcTableBody"
+        );
+
+
+    if (!tbody) {
+
+        updateSummary();
+
+        return;
+    }
+
+
+    tbody.innerHTML = "";
+
+
+    const bayNumbers =
+        Object.keys(
+            flcProducts
+        ).sort(
+            (a, b) =>
+                Number(a) - Number(b)
+        );
+
+
+    if (
+        bayNumbers.length === 0
+    ) {
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="6"
+                    class="empty-row"
+                >
+                    No FLC records found.
+                    Click
+                    <strong>+ ADD NEW</strong>
+                    to create one.
+                </td>
+
+            </tr>
+
+        `;
+
+
+        updateSummary();
+
+        return;
+    }
+
+
+    bayNumbers.forEach(
+        (bayNo, index) => {
+
+            const item =
+                flcProducts[
+                    bayNo
+                ] || {};
+
+
+            const bay =
+                bays.find(
+                    currentBay =>
+                        normalizeBayNo(
+                            currentBay["Bay No"]
+                        ) ===
+                        normalizeBayNo(
+                            bayNo
+                        )
+                );
+
+
+            const connected =
+                bay
+                    ? bay.connected === true
+                    : false;
+
+
+            const communicating =
+                communicationStatus[
+                    bayNo
+                ] === true;
+
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            row.dataset.bayNo =
+                bayNo;
+
+
+            // -----------------------------------------
+            // CONNECTION STATUS
+            // -----------------------------------------
+
+            let connectionHTML;
+
+
+            if (connected) {
+
+                connectionHTML = `
+
+                    <span
+                        class="connection-status connected"
+                    >
+
+                        <span
+                            class="status-indicator green"
+                        ></span>
+
+                        CONNECTED
+
+                    </span>
+
+                `;
+
+            }
+
+            else {
+
+                connectionHTML = `
+
+                    <span
+                        class="connection-status disconnected"
+                    >
+
+                        <span
+                            class="status-indicator red"
+                        ></span>
+
+                        OFFLINE
+
+                    </span>
+
+                `;
+
+            }
+
+
+            // -----------------------------------------
+            // COMMUNICATION STATUS
+            // -----------------------------------------
+
+            let communicationHTML;
+
+
+            if (communicating) {
+
+                communicationHTML = `
+
+                    <span
+                        class="communication-status communicating"
+                    >
+
+                        <span
+                            class="status-indicator green"
+                        ></span>
+
+                        COMMUNICATING
+
+                    </span>
+
+                `;
+
+            }
+
+            else {
+
+                communicationHTML = `
+
+                    <span
+                        class="communication-status not-communicating"
+                    >
+
+                        <span
+                            class="status-indicator red"
+                        ></span>
+
+                        NOT COMMUNICATING
+
+                    </span>
+
+                `;
+
+            }
+
+
+            // -----------------------------------------
+            // ORDER ID
+            // -----------------------------------------
+
+            const orderId =
+                item.orderId ||
+                "--";
+
+
+            // -----------------------------------------
+            // TABLE ROW
+            // -----------------------------------------
+
+            row.innerHTML = `
+
+                            <!-- S.NO -->
+
+                <td
+                    class="sno-cell"                  
+                    title="Click S.No. to show actions"
+                >
+
+                    <strong>
+                        ${index + 1}
+                    </strong>
+
+                </td>
+
+
+                <!-- BAY NO -->
+
+                <td>
+
+                    <strong class="bay-number">
+
+                        ${escapeHTML(
+                            formatBayNo(
+                                item.bayNo ||
+                                bayNo
+                            )
+                        )}
+
+                    </strong>
+
+                </td>
+
+
+                <!-- ORDER ID -->
+
+                <td>
+
+                    <span class="order-id">
+
+                        ${escapeHTML(
+                            orderId
+                        )}
+
+                    </span>
+
+                </td>
+
+
+                <!-- CONNECTION STATUS -->
+
+                <td>
+
+                    ${connectionHTML}
+
+                </td>
+
+
+                <!-- COMMUNICATION STATUS -->
+
+                <td>
+
+                    ${communicationHTML}
+
+                </td>
+
+
+                <!-- ACTION -->
+
+                <td>
+
+                    <div
+                            class="action-buttons"
+                            style="display: none !important;"
+                        >
+
+                        <button
+                            class="edit-flc-button"
+                            onclick="editFLC('${escapeHTML(
+                                bayNo
+                            )}')"
+                        >
+                            EDIT
+                        </button>
+
+
+                        <button
+                            class="delete-flc-button"
+                            onclick="deleteFLC('${escapeHTML(
+                                bayNo
+                            )}')"
+                        >
+                            DELETE
+                        </button>
+
+                    </div>
+
+                </td>
+
+            `;
+
+
+            tbody.appendChild(
+                row
+            );
+
+        }
+    );
+
+
+    updateSummary();
+}
+
+
+// =====================================================
+// INITIAL FLC DATA
+// =====================================================
+
+socket.on(
+    "products-initial",
+    products => {
+
+        console.log(
+            "[FLC INITIAL]",
+            products
+        );
+
+
+        flcProducts =
+            products || {};
+
+
+        Object.keys(
+            flcProducts
+        ).forEach(
+            bayNo => {
+
+                if (
+                    communicationStatus[
+                        bayNo
+                    ] === undefined
+                ) {
+
+                    communicationStatus[
+                        bayNo
+                    ] = false;
+
+                }
+
+            }
+        );
+
+
+        renderFLCTable();
+
+        updateSummary();
+
+    }
+);
+// =====================================================
+// SHOW / HIDE FLC ACTION BUTTONS
+// =====================================================
+
+function toggleFLCActions(snoCell) {
+
+    console.log(
+        "[S.NO CLICKED]",
+        snoCell.innerText
+    );
+
+
+    const row =
+        snoCell.closest("tr");
+
+
+    if (!row) {
+
+        console.error(
+            "[ACTION] Row not found"
+        );
+
+        return;
+
+    }
+
+
+    const tbody =
+        document.getElementById(
+            "flcTableBody"
+        );
+
+
+    if (!tbody) {
+
+        console.error(
+            "[ACTION] FLC table body not found"
+        );
+
+        return;
+
+    }
+
+
+    // -----------------------------------------
+    // HIDE ALL OTHER ACTION BUTTONS
+    // -----------------------------------------
+
+    tbody
+        .querySelectorAll(
+            ".action-buttons"
+        )
+        .forEach(
+            buttons => {
+
+                buttons.style.setProperty(
+                    "display",
+                    "none",
+                    "important"
+                );
+
+            }
+        );
+
+
+    // -----------------------------------------
+    // REMOVE SELECTED FROM ALL ROWS
+    // -----------------------------------------
+
+    tbody
+        .querySelectorAll("tr")
+        .forEach(
+            currentRow => {
+
+                currentRow.classList.remove(
+                    "selected-row"
+                );
+
+            }
+        );
+
+
+    // -----------------------------------------
+    // SELECT CLICKED ROW
+    // -----------------------------------------
+
+    row.classList.add(
+        "selected-row"
+    );
+
+
+    // -----------------------------------------
+    // FIND ACTION BUTTONS
+    // -----------------------------------------
+
+    const actionButtons =
+        row.querySelector(
+            ".action-buttons"
+        );
+
+
+    if (!actionButtons) {
+
+        console.error(
+            "[ACTION] .action-buttons NOT FOUND"
+        );
+
+        return;
+
+    }
+
+
+    // -----------------------------------------
+    // FORCE SHOW
+    // -----------------------------------------
+
+    actionButtons.style.setProperty(
+        "display",
+        "flex",
+        "important"
+    );
+
+
+    console.log(
+        "[ACTION] EDIT / DELETE SHOWN"
+    );
+
+}
+
+
+// =====================================================
+// PRODUCT UPDATED
+// =====================================================
+
+socket.on(
+    "product-updated",
+    product => {
+
+        console.log(
+            "[FLC REAL-TIME UPDATE]",
+            product
+        );
+
+
+        if (!product) {
+            return;
+        }
+
+
+        const bayNo =
+            normalizeBayNo(
+                product.bayNo
+            );
+
+
+        if (!bayNo) {
+            return;
+        }
+
+
+        flcProducts[
+            bayNo
+        ] = product;
+
+
+        renderFLCTable();
+
+
+        updateProductOnMainScreen(
+            product
+        );
+
+
+        updateSummary();
+
+    }
+);
+
+
+// =====================================================
+// PRODUCT DELETED
+// =====================================================
+
+socket.on(
+    "product-deleted",
+    data => {
+
+        console.log(
+            "[FLC REAL-TIME DELETE]",
+            data
+        );
+
+
+        if (!data) {
+            return;
+        }
+
+
+        const bayNo =
+            normalizeBayNo(
+                data.bayNo
+            );
+
+
+        delete flcProducts[
+            bayNo
+        ];
+
+
+        communicationStatus[
+            bayNo
+        ] = false;
+
+
+        renderFLCTable();
+
+        updateSummary();
+
+    }
+);
+// =====================================================
+// FLC MODAL ELEMENTS
+// =====================================================
+
+const addFLCButton =
+    document.getElementById(
+        "addFLCButton"
+    );
+
+
+const flcModal =
+    document.getElementById(
+        "flcModal"
+    );
+
+
+const closeFLCButton =
+    document.getElementById(
+        "closeFLCButton"
+    );
+
+
+const cancelFLCButton =
+    document.getElementById(
+        "cancelFLCButton"
+    );
+
+
+const saveNewFLCButton =
+    document.getElementById(
+        "saveNewFLCButton"
+    );
+
+
+// =====================================================
+// OPEN FLC MODAL
+// =====================================================
+
+if (addFLCButton) {
+
+    addFLCButton.addEventListener(
+        "click",
+        () => {
+
+            clearFLCForm();
+
+
+            populateFLCBayDropdown();
+
+
+            const title =
+                document.getElementById(
+                    "flcModalTitle"
+                );
+
+
+            if (title) {
+
+                title.textContent =
+                    "Add FLC Details";
+
+            }
+
+
+            if (saveNewFLCButton) {
+
+                saveNewFLCButton.textContent =
+                    "ADD FLC";
+
+            }
+
+
+            if (flcModal) {
+
+                flcModal.classList.remove(
+                    "hidden"
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+// =====================================================
+// CLOSE FLC MODAL
+// =====================================================
+
+function closeFLCForm() {
+
+    if (flcModal) {
+
+        flcModal.classList.add(
+            "hidden"
+        );
+
+    }
+
+}
+
+
+if (closeFLCButton) {
+
+    closeFLCButton.addEventListener(
+        "click",
+        closeFLCForm
+    );
+
+}
+
+
+if (cancelFLCButton) {
+
+    cancelFLCButton.addEventListener(
+        "click",
+        closeFLCForm
+    );
+
+}
+
+
+if (flcModal) {
+
+    flcModal.addEventListener(
+        "click",
+        event => {
+
+            if (
+                event.target ===
+                flcModal
+            ) {
+
+                closeFLCForm();
+
+            }
+
+        }
+    );
+
+}
+
+
+// =====================================================
+// CLEAR FLC FORM
+// =====================================================
+
+function clearFLCForm() {
+
+    const fields = [
+
+        "flcBayNo",
+
+        "flcOrderID",
+
+        "flcQRData",
+
+        "flcIPAddress"
+
+    ];
+
+
+    fields.forEach(
+        id => {
+
+            const element =
+                document.getElementById(
+                    id
+                );
+
+
+            if (element) {
+
+                element.value = "";
+
+            }
+
+        }
+    );
+}
+
+
+// =====================================================
+// ADD NEW FLC
+// =====================================================
+
+async function addNewFLCRecord() {
+
+    try {
+
+        const bayNo =
+            document.getElementById(
+                "flcBayNo"
+            ).value.trim();
+
+
+        const orderId =
+            document.getElementById(
+                "flcOrderID"
+            ).value.trim();
+
+
+        const qrValue =
+            document.getElementById(
+                "flcQRData"
+            ).value.trim();
+
+
+        const ipAddress =
+            document.getElementById(
+                "flcIPAddress"
+            ).value.trim();
+
+
+        // -----------------------------------------
+        // VALIDATION
+        // -----------------------------------------
+
+        if (!bayNo) {
+
+            alert(
+                "Please select Bay No."
+            );
+
+            return;
+        }
+
+
+        if (!orderId) {
+
+            alert(
+                "Please enter Order ID."
+            );
+
+            return;
+        }
+
+
+        if (!qrValue) {
+
+            alert(
+                "Please enter QR Data."
+            );
+
+            return;
+        }
+
+
+        if (!ipAddress) {
+
+            alert(
+                "IP Address was not found for this Bay."
+            );
+
+            return;
+        }
+
+
+        // -----------------------------------------
+        // DUPLICATE CHECK
+        // -----------------------------------------
+
+        if (
+            flcProducts[
+                bayNo
+            ]
+        ) {
+
+            alert(
+                `Bay ${formatBayNo(
+                    bayNo
+                )} already has an FLC record.
+
+Use EDIT to change it.`
+            );
+
+            return;
+        }
+
+
+        // -----------------------------------------
+        // DATA
+        // -----------------------------------------
+
+        const productData = {
+
+            bayNo:
+                String(bayNo),
+
+            orderId:
+                orderId,
+
+            serialNo:
+                "",
+
+            qrValue:
+                qrValue,
+
+            ipAddress:
+                ipAddress
+
+        };
+
+
+        console.log(
+            "[FLC ADD]",
+            productData
+        );
+
+
+        // -----------------------------------------
+        // SEND TO BACKEND
+        // -----------------------------------------
+
+        const response =
+            await fetch(
+                `${BACKEND_URL}/api/products/${bayNo}`,
+                {
+
+                    method: "PUT",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify(
+                            productData
+                        )
+
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !result.success
+        ) {
+
+            throw new Error(
+                result.message ||
+                "Unable to add FLC"
+            );
+
+        }
+
+
+        // -----------------------------------------
+        // UPDATE LOCAL DATA
+        // -----------------------------------------
+
+        flcProducts[
+            bayNo
+        ] = result.data;
+
+
+        renderFLCTable();
+
+        updateSummary();
+
+        closeFLCForm();
+
+
+        addLog(
+            `[FLC] Bay ${formatBayNo(
+                bayNo
+            )} added with Order ID ${orderId}`
+        );
+
+
+        console.log(
+            "[FLC ADDED]",
+            result.data
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "[FLC ADD ERROR]",
+            error
+        );
+
+
+        alert(
+            "Unable to add FLC:\n\n" +
+            error.message
+        );
+
+    }
+}
+
+
+// =====================================================
+// SAVE BUTTON
+// =====================================================
+
+if (saveNewFLCButton) {
+
+    saveNewFLCButton.addEventListener(
+        "click",
+        addNewFLCRecord
+    );
+
+}
+
+
+// =====================================================
+// EDIT FLC
+// =====================================================
+
+function editFLC(
+    bayNo
+) {
+
+    const item =
+        flcProducts[
+            bayNo
+        ];
+
+
+    if (!item) {
+
+        alert(
+            "FLC record not found."
+        );
+
+        return;
+    }
+
+
+    const row =
+        document.querySelector(
+            `tr[data-bay-no="${CSS.escape(
+                String(bayNo)
+            )}"]`
+        );
+
+
+    if (!row) {
+        return;
+    }
+
+
+    const connected =
+        (() => {
+
+            const bay =
+                bays.find(
+                    currentBay =>
+                        normalizeBayNo(
+                            currentBay[
+                                "Bay No"
+                            ]
+                        ) ===
+                        normalizeBayNo(
+                            bayNo
+                        )
+                );
+
+            return bay
+                ? bay.connected === true
+                : false;
+
+        })();
+
+
+    const communicating =
+        communicationStatus[
+            bayNo
+        ] === true;
+
+
+    row.innerHTML = `
+
+        <!-- S.NO -->
+
+        <td>
+
+            <strong>
+                ${getFLCSNo(bayNo)}
+            </strong>
+
+        </td>
+
+
+        <!-- BAY -->
+
+        <td>
+
+            <strong>
+
+                ${escapeHTML(
+                    formatBayNo(
+                        bayNo
+                    )
+                )}
+
+            </strong>
+
+        </td>
+
+
+        <!-- ORDER ID -->
+
+        <td>
+
+            <input
+                type="text"
+                class="flc-input"
+                id="order-${escapeHTML(
+                    bayNo
+                )}"
+                value="${escapeHTML(
+                    item.orderId || ""
+                )}"
+                placeholder="Order ID"
+            >
+
+        </td>
+
+
+        <!-- CONNECTION -->
+
+        <td>
+
+            ${
+                connected
+                ?
+                `
+                <span
+                    class="connection-status connected"
+                >
+                    CONNECTED
+                </span>
+                `
+                :
+                `
+                <span
+                    class="connection-status disconnected"
+                >
+                    OFFLINE
+                </span>
+                `
+            }
+
+        </td>
+
+
+        <!-- COMMUNICATION -->
+
+        <td>
+
+            ${
+                communicating
+                ?
+                `
+                <span
+                    class="communication-status communicating"
+                >
+                    COMMUNICATING
+                </span>
+                `
+                :
+                `
+                <span
+                    class="communication-status not-communicating"
+                >
+                    NOT COMMUNICATING
+                </span>
+                `
+            }
+
+        </td>
+
+
+        <!-- ACTION -->
+
+        <td>
+
+            <div
+                class="action-buttons"
+            >
+
+                <button
+                    class="edit-flc-button"
+                    onclick="saveFLC('${escapeHTML(
+                        bayNo
+                    )}')"
+                >
+                    SAVE
+                </button>
+
+
+                <button
+                    class="delete-flc-button"
+                    onclick="renderFLCTable()"
+                >
+                    CANCEL
+                </button>
+
+            </div>
+
+        </td>
+
+    `;
+
+}
+
+
+// =====================================================
+// GET FLC S.NO
+// =====================================================
+
+function getFLCSNo(
+    bayNo
+) {
+
+    const bayNumbers =
+        Object.keys(
+            flcProducts
+        ).sort(
+            (a, b) =>
+                Number(a) - Number(b)
+        );
+
+
+    const index =
+        bayNumbers.indexOf(
+            String(bayNo)
+        );
+
+
+    return index >= 0
+        ? index + 1
+        : "--";
+}
+
+
+// =====================================================
+// SAVE EDITED FLC
+// =====================================================
+
+async function saveFLC(
+    bayNo
+) {
+
+    try {
+
+        const orderInput =
+            document.getElementById(
+                `order-${bayNo}`
+            );
+
+
+        if (!orderInput) {
+
+            throw new Error(
+                "Order ID field not found."
+            );
+
+        }
+
+
+        const orderId =
+            orderInput.value.trim();
+
+
+        if (!orderId) {
+
+            alert(
+                "Please enter Order ID."
+            );
+
+            return;
+        }
+
+
+        const item =
+            flcProducts[
+                bayNo
+            ] || {};
+
+
+        const productData = {
+
+            bayNo:
+                String(bayNo),
+
+            orderId:
+                orderId,
+
+            serialNo:
+                item.serialNo || "",
+
+            qrValue:
+                item.qrValue || "",
+
+            ipAddress:
+                item.ipAddress || ""
+
+        };
+
+
+        const response =
+            await fetch(
+                `${BACKEND_URL}/api/products/${bayNo}`,
+                {
+
+                    method: "PUT",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify(
+                            productData
+                        )
+
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !result.success
+        ) {
+
+            throw new Error(
+                result.message ||
+                "Unable to save FLC"
+            );
+
+        }
+
+
+        flcProducts[
+            bayNo
+        ] = result.data;
+
+
+        renderFLCTable();
+
+        updateSummary();
+
+
+        addLog(
+            `[FLC] Bay ${formatBayNo(
+                bayNo
+            )} Order ID updated`
+        );
+
+
+        console.log(
+            "[FLC SAVED]",
+            result.data
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "[FLC SAVE ERROR]",
+            error
+        );
+
+
+        alert(
+            "Unable to save:\n\n" +
+            error.message
+        );
+
+    }
+}
+
+
+// =====================================================
+// DELETE FLC
+// =====================================================
+
+async function deleteFLC(
+    bayNo
+) {
+
+    const item =
+        flcProducts[
+            bayNo
+        ];
+
+
+    if (!item) {
+        return;
+    }
+
+
+    const confirmed =
+        confirm(
+            `Delete FLC record for Bay ${formatBayNo(
+                bayNo
+            )}?`
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${BACKEND_URL}/api/products/${bayNo}`,
+                {
+
+                    method: "DELETE"
+
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !result.success
+        ) {
+
+            throw new Error(
+                result.message ||
+                "Unable to delete FLC"
+            );
+
+        }
+
+
+        delete flcProducts[
+            bayNo
+        ];
+
+
+        communicationStatus[
+            bayNo
+        ] = false;
+
+
+        renderFLCTable();
+
+        updateSummary();
+
+
+        addLog(
+            `[FLC] Bay ${formatBayNo(
+                bayNo
+            )} deleted`
+        );
+
+
+        console.log(
+            `[FLC] Bay ${bayNo} deleted`
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "[FLC DELETE ERROR]",
+            error
+        );
+
+
+        alert(
+            "Unable to delete:\n\n" +
+            error.message
+        );
+
+    }
+}
+// =====================================================
+// BAY CONFIGURATION UPDATED
+// =====================================================
+
+socket.on(
+    "bay-config-updated",
+    updatedBay => {
+
+        console.log(
+            "[BAY CONFIG UPDATED]",
+            updatedBay
+        );
+
+
+        if (!updatedBay) {
+            return;
+        }
+
+
+        const bayNo =
+            normalizeBayNo(
+                updatedBay[
+                    "Bay No"
+                ]
+            );
+
+
+        const index =
+            bays.findIndex(
+                bay =>
+                    normalizeBayNo(
+                        bay["Bay No"]
+                    ) === bayNo
+            );
+
+
+        if (index !== -1) {
+
+            const oldConnected =
+                bays[index].connected;
+
+
+            bays[index] = {
+
+                ...updatedBay,
+
+                connected:
+                    oldConnected
+
+            };
+
+        }
+
+
+        populateFLCBayDropdown();
+
+        renderBays();
+
+        renderFLCTable();
+
+        updateSummary();
+
+
+        addLog(
+            `[REAL TIME] Bay ${formatBayNo(
+                bayNo
+            )} configuration updated`
+        );
+
+    }
+);
+
 
 // =====================================================
 // FACTORY DATA ENTRY
@@ -947,1891 +2995,299 @@ const displayStatus =
 // =====================================================
 // SEND PRODUCT TO SECONDARY DISPLAY
 // =====================================================
+
 if (sendDisplayButton) {
 
     sendDisplayButton.addEventListener(
         "click",
         async () => {
 
-        const bayNo =
-            document.getElementById(
-                "entryBayNo"
-            ).value.trim();
+            try {
+
+                const getValue =
+                    id => {
+
+                        const element =
+                            document.getElementById(
+                                id
+                            );
+
+                        return element
+                            ? element.value.trim()
+                            : "";
+
+                    };
 
 
-        const serialNo =
-            document.getElementById(
-                "entrySerialNo"
-            ).value.trim();
+                const bayNo =
+                    getValue(
+                        "entryBayNo"
+                    );
 
 
-        const product =
-            document.getElementById(
-                "entryProduct"
-            ).value.trim();
+                const serialNo =
+                    getValue(
+                        "entrySerialNo"
+                    );
 
 
-        const model =
-            document.getElementById(
-                "entryModel"
-            ).value.trim();
+                const product =
+                    getValue(
+                        "entryProduct"
+                    );
 
 
-        const ipAddress =
-            document.getElementById(
-                "entryIP"
-            ).value.trim();
+                const model =
+                    getValue(
+                        "entryModel"
+                    );
 
 
-        const qrValueInput =
-            document.getElementById(
-                "entryQR"
-            ).value.trim();
+                const ipAddress =
+                    getValue(
+                        "entryIP"
+                    );
 
 
-        const wayNo =
-            document.getElementById(
-                "entryWayNo"
-            ).value.trim();
+                const qrValue =
+                    getValue(
+                        "entryQR"
+                    );
 
 
-        // =============================================
-        // VALIDATION
-        // =============================================
-
-        if (
-            !bayNo ||
-            !serialNo ||
-            !product ||
-            !model
-        ) {
-
-            entryMessage.textContent =
-                "Please fill Bay No, Serial No, Product and Model.";
-
-            entryMessage.style.color =
-                "red";
-
-            return;
-
-        }
+                const wayNo =
+                    getValue(
+                        "entryWayNo"
+                    );
 
 
-        // =============================================
-        // QR VALUE
-        // If empty, use Serial No
-        // =============================================
+                if (!bayNo) {
 
-        const qrValue =
-            qrValueInput || serialNo;
+                    alert(
+                        "Please select Bay."
+                    );
 
-
-        // =============================================
-        // PRODUCT OBJECT
-        // =============================================
-
-        const productData = {
-
-            wayNo:
-                wayNo || "",
-
-            bayNo:
-                bayNo,
-
-            serialNo:
-                serialNo,
-
-            product:
-                product,
-
-            model:
-                model,
-
-            ipAddress:
-                ipAddress,
-
-            qrValue:
-                qrValue
-
-        };
+                    return;
+                }
 
 
-        console.log(
-            "[DISPLAY SEND]",
-            productData
-        );
+                const data = {
+
+                    bayNo:
+                        bayNo,
+
+                    serialNo:
+                        serialNo,
+
+                    product:
+                        product,
+
+                    model:
+                        model,
+
+                    ipAddress:
+                        ipAddress,
+
+                    qrValue:
+                        qrValue,
+
+                    wayNo:
+                        wayNo
+
+                };
 
 
-        // =============================================
-        // SEND TO BACKEND
-        // =============================================
-
-        try {
-
-            displayStatus.textContent =
-                "Sending...";
-
-
-            const response =
-                await fetch(
-                    "http://localhost:5000/api/display",
-                    {
-
-                        method: "POST",
-
-                        headers: {
-
-                            "Content-Type":
-                                "application/json"
-
-                        },
-
-                        body:
-                            JSON.stringify(
-                                productData
-                            )
-
-                    }
+                console.log(
+                    "[DISPLAY DATA]",
+                    data
                 );
 
 
-            const result =
-                await response.json();
+                const response =
+                    await fetch(
+                        `${BACKEND_URL}/api/display`,
+                        {
+
+                            method: "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json"
+
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    data
+                                )
+
+                        }
+                    );
 
 
-            if (!response.ok) {
+                const result =
+                    await response.json();
 
-                throw new Error(
-                    result.message ||
-                    "Failed to send product"
+
+                if (
+                    !response.ok ||
+                    !result.success
+                ) {
+
+                    throw new Error(
+                        result.message ||
+                        "Unable to send display data"
+                    );
+
+                }
+
+
+                if (entryMessage) {
+
+                    entryMessage.textContent =
+                        "Data sent successfully.";
+
+                }
+
+
+                if (displayStatus) {
+
+                    displayStatus.textContent =
+                        "DISPLAY UPDATED";
+
+                }
+
+
+                addLog(
+                    `[DISPLAY] Bay ${formatBayNo(
+                        bayNo
+                    )} updated`
                 );
 
             }
 
+            catch (error) {
 
-            // =========================================
-            // SUCCESS
-            // =========================================
-
-            displayStatus.textContent =
-                "Sent";
-
-
-            entryMessage.textContent =
-                "✓ Product sent to Secondary Display";
+                console.error(
+                    "[DISPLAY ERROR]",
+                    error
+                );
 
 
-            entryMessage.style.color =
-                "green";
+                alert(
+                    "Unable to send display data:\n\n" +
+                    error.message
+                );
 
-
-            // Update Latest Product on Main Screen too
-
-            updateProductOnMainScreen(
-                productData
-            );
-
-
-            addLog(
-                `[DISPLAY] Sent Bay ${bayNo} | Serial: ${serialNo} | Product: ${product}`
-            );
-
+            }
 
         }
+    );
 
-        catch (error) {
-
-            console.error(
-                "[DISPLAY ERROR]",
-                error
-            );
-
-
-            displayStatus.textContent =
-                "Error";
-
-
-            entryMessage.textContent =
-                "✗ Unable to send product: " +
-                error.message;
-
-
-            entryMessage.style.color =
-                "red";
-
-        }
-
-    }
-);
 }
 
+
 // =====================================================
-// CLEAR ENTRY
+// CLEAR FACTORY DATA ENTRY
 // =====================================================
 
 if (clearEntryButton) {
 
     clearEntryButton.addEventListener(
         "click",
+        () => {
+
+            const fields = [
+
+                "entryBayNo",
+
+                "entrySerialNo",
+
+                "entryProduct",
+
+                "entryModel",
+
+                "entryIP",
+
+                "entryQR",
+
+                "entryWayNo"
+
+            ];
+
+
+            fields.forEach(
+                id => {
+
+                    const element =
+                        document.getElementById(
+                            id
+                        );
+
+
+                    if (element) {
+
+                        element.value = "";
+
+                    }
+
+                }
+            );
+
+
+            if (entryMessage) {
+
+                entryMessage.textContent =
+                    "";
+
+            }
+
+
+            if (displayStatus) {
+
+                displayStatus.textContent =
+                    "";
+
+            }
+
+        }
+    );
+
+}
+
+
+// =====================================================
+// INITIAL START
+// =====================================================
+
+document.addEventListener(
+    "DOMContentLoaded",
     () => {
 
-        document.getElementById(
-            "entryBayNo"
-        ).value = "";
+        setupFLCBaySelection();
 
+        setupFactoryBaySelection();
 
-        document.getElementById(
-            "entrySerialNo"
-        ).value = "";
+        loadStoredLatestProduct();
 
+        loadBays();
 
-        document.getElementById(
-            "entryProduct"
-        ).value = "";
-
-
-        document.getElementById(
-            "entryModel"
-        ).value = "";
-
-
-        document.getElementById(
-            "entryIP"
-        ).value = "";
-
-
-        document.getElementById(
-            "entryQR"
-        ).value = "";
-
-
-        document.getElementById(
-            "entryWayNo"
-        ).value = "";
-
-
-        entryMessage.textContent =
-            "";
-
-
-        displayStatus.textContent =
-            "Ready";
+        updateSummary();
 
     }
 );
-}
-// =====================================================
-// EDIT BAY
-// =====================================================
-
-function editBay(bayNo) {
-
-    const bay =
-        bays.find(
-            item =>
-                String(
-                    item["Bay No"]
-                ) === String(bayNo)
-        );
-
-
-    if (!bay) {
-
-        alert(
-            "Bay configuration not found"
-        );
-
-        return;
-
-    }
-
-
-    const wayNo =
-        prompt(
-            `Enter Way No. for Bay ${bayNo}:`,
-            bay["Way No"] || ""
-        );
-
-
-    if (wayNo === null) {
-
-        return;
-
-    }
-
-
-    const ipAddress =
-        prompt(
-            `Enter IP Address for Bay ${bayNo}:`,
-            bay["IP Address"] || ""
-        );
-
-
-    if (ipAddress === null) {
-
-        return;
-
-    }
-
-
-    const tcpPort =
-        prompt(
-            `Enter TCP Port for Bay ${bayNo}:`,
-            bay["TCP Port"] || ""
-        );
-
-
-    if (tcpPort === null) {
-
-        return;
-
-    }
-
-
-    saveBayConfiguration(
-        bayNo,
-        wayNo,
-        ipAddress,
-        tcpPort
-    );
-
-}
-// =====================================================
-// SAVE BAY CONFIGURATION
-// =====================================================
-
-async function saveBayConfiguration(
-    bayNo,
-    wayNo,
-    ipAddress,
-    tcpPort
-) {
-
-    try {
-
-        console.log(
-            "[BAY UPDATE]",
-            {
-                bayNo,
-                wayNo,
-                ipAddress,
-                tcpPort
-            }
-        );
-
-
-        const response =
-            await fetch(
-                `http://localhost:5000/api/bays/${bayNo}`,
-                {
-
-                    method: "PUT",
-
-                    headers: {
-
-                        "Content-Type":
-                            "application/json"
-
-                    },
-
-                    body:
-                        JSON.stringify({
-
-                            wayNo:
-                                wayNo,
-
-                            ipAddress:
-                                ipAddress,
-
-                            tcpPort:
-                                tcpPort
-
-                        })
-
-                }
-            );
-
-
-        const result =
-            await response.json();
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                result.message ||
-                "Failed to update Bay"
-            );
-
-        }
-
-
-        console.log(
-            "[BAY UPDATED]",
-            result.data
-        );
-
-
-        // Update local bay data
-
-        const index =
-            bays.findIndex(
-                item =>
-                    String(
-                        item["Bay No"]
-                    ) === String(bayNo)
-            );
-
-
-        if (index !== -1) {
-
-            bays[index] =
-                result.data;
-
-        }
-
-
-        renderBays();
-
-
-        addLog(
-            `[BAY UPDATED] Bay ${bayNo} → ${ipAddress}:${tcpPort}`
-        );
-
-
-        alert(
-            `Bay ${bayNo} updated successfully.\n\n` +
-            `Way No: ${wayNo}\n` +
-            `IP: ${ipAddress}\n` +
-            `TCP Port: ${tcpPort}\n\n` +
-            `TCP reconnection started.`
-        );
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "[BAY UPDATE ERROR]",
-            error
-        );
-
-
-        alert(
-            "Unable to update Bay:\n" +
-            error.message
-        );
-
-    }
-
-}
-// =====================================================
-// REAL-TIME BAY CONFIGURATION UPDATE
-// =====================================================
-
-socket.on(
-    "bay-config-updated",
-    updatedBay => {
-
-        console.log(
-            "[REAL TIME BAY UPDATE]",
-            updatedBay
-        );
-
-
-        const index =
-            bays.findIndex(
-                bay =>
-                    String(
-                        bay["Bay No"]
-                    ) ===
-                    String(
-                        updatedBay["Bay No"]
-                    )
-            );
-
-
-        if (index !== -1) {
-
-            bays[index] =
-                updatedBay;
-
-        }
-
-
-        renderBays();
-
-
-        // Update Factory Data Entry
-        // if this Bay is currently selected
-
-        const selectedBay =
-            document.getElementById(
-                "entryBayNo"
-            );
-
-
-        if (
-            selectedBay &&
-            String(
-                selectedBay.value
-            ) ===
-            String(
-                updatedBay["Bay No"]
-            )
-        ) {
-
-            document.getElementById(
-                "entryIP"
-            ).value =
-                updatedBay[
-                    "IP Address"
-                ] || "";
-
-
-            document.getElementById(
-                "entryWayNo"
-            ).value =
-                updatedBay[
-                    "Way No"
-                ] || "";
-
-        }
-
-
-        addLog(
-            `[REAL TIME] Bay ${updatedBay["Bay No"]} configuration updated`
-        );
-
-    }
-);
-
-// =====================================================
-// FLC PRODUCTS
-// =====================================================
-
-let flcProducts = {};
 
 
 // =====================================================
-// RENDER FLC TABLE
+// ALSO LOAD IMMEDIATELY
 // =====================================================
 
-function renderFLCTable() {
-
-    const tbody = document.getElementById("flcTableBody");
-
-    if (!tbody) {
-        return;
-    }
-
-    tbody.innerHTML = "";
-
-    const bayNumbers = Object.keys(flcProducts);
-
-    if (bayNumbers.length === 0) {
-
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="8" class="empty-row">
-                    No FLC records found.
-                    Click <strong>+ ADD NEW</strong> to create one.
-                </td>
-            </tr>
-        `;
-
-        return;
-    }
-
-    bayNumbers.forEach((bayNo, index) => {
-
-        const item = flcProducts[bayNo];
-
-        const row = document.createElement("tr");
-
-        row.dataset.bayNo = bayNo;
-
-        row.innerHTML = `
-
-            <!-- AUTOMATIC SERIAL NUMBER -->
-            <td>
-                <strong>${index + 1}</strong>
-            </td>
-
-            <!-- BAY NUMBER -->
-            <td>
-                ${escapeHTML(item.bayNo || bayNo)}
-            </td>
-
-            <!-- PRODUCT -->
-            <td>
-                ${escapeHTML(item.product || "--")}
-            </td>
-
-            <!-- MODEL -->
-            <td>
-                ${escapeHTML(item.model || "--")}
-            </td>
-
-            <!-- QR DATA -->
-            <td>
-                ${escapeHTML(item.qrValue || "--")}
-            </td>
-
-            <!-- IP ADDRESS -->
-            <td>
-                ${escapeHTML(item.ipAddress || "--")}
-            </td>
-
-            <!-- STATUS -->
-            <td>
-                <span class="flc-status published">
-                    PUBLISHED
-                </span>
-            </td>
-
-            <!-- ACTION -->
-            <td>
-                <div class="flc-actions">
-
-                    <button
-                        class="edit-flc-button"
-                        onclick="editFLC('${bayNo}')"
-                    >
-                        EDIT
-                    </button>
-
-                    <button
-                        class="delete-flc-button"
-                        onclick="deleteFLC('${bayNo}')"
-                    >
-                        DELETE
-                    </button>
-
-                </div>
-            </td>
-
-        `;
-
-        tbody.appendChild(row);
-
-    });
-
-}
-// =====================================================
-// HTML ESCAPE
-// =====================================================
-
-function escapeHTML(value) {
-
-    return String(
-        value ?? ""
-    )
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
-
-}
-
-// =====================================================
-// EDIT FLC ROW
-// =====================================================
-
-function editFLC(bayNo) {
-
-    const item = flcProducts[bayNo];
-
-    if (!item) {
-        return;
-    }
-
-    const row = document.querySelector(
-        `tr[data-bay-no="${bayNo}"]`
-    );
-
-    if (!row) {
-        return;
-    }
-
-    row.classList.add("editing");
-
-    row.innerHTML = `
-
-        <!-- AUTOMATIC SERIAL NUMBER -->
-        <td>
-            <strong class="flc-serial-number">
-                ${Object.keys(flcProducts).indexOf(String(bayNo)) + 1}
-            </strong>
-        </td>
-
-        <!-- BAY NUMBER -->
-        <td>
-            <strong>
-                ${escapeHTML(bayNo)}
-            </strong>
-        </td>
-
-        <!-- PRODUCT -->
-        <td>
-            <input
-                class="flc-input"
-                id="product-${bayNo}"
-                value="${escapeHTML(item.product || "")}"
-            >
-        </td>
-
-        <!-- MODEL -->
-        <td>
-            <input
-                class="flc-input"
-                id="model-${bayNo}"
-                value="${escapeHTML(item.model || "")}"
-            >
-        </td>
-
-        <!-- QR DATA -->
-        <td>
-            <input
-                class="flc-input"
-                id="qr-${bayNo}"
-                value="${escapeHTML(item.qrValue || "")}"
-            >
-        </td>
-
-        <!-- IP ADDRESS -->
-        <td>
-            <strong>
-                ${escapeHTML(item.ipAddress || "--")}
-            </strong>
-        </td>
-
-        <!-- STATUS -->
-        <td>
-            <span class="flc-status editing-status">
-                EDITING
-            </span>
-        </td>
-
-        <!-- ACTION -->
-        <td>
-            <div class="flc-actions">
-
-                <button
-                    class="save-flc-button"
-                    onclick="saveFLC('${bayNo}')"
-                >
-                    SAVE
-                </button>
-
-                <button
-                    class="cancel-flc-button"
-                    onclick="renderFLCTable()"
-                >
-                    CANCEL
-                </button>
-
-            </div>
-        </td>
-
-    `;
-}
+loadBays();
 
 
 // =====================================================
-// SAVE FLC
+// FINAL SUMMARY UPDATE
 // =====================================================
 
-async function saveFLC(bayNo) {
-
-    try {
-
-        const productData = {
-
-            bayNo: bayNo,
-
-            product:
-                document.getElementById(
-                    `product-${bayNo}`
-                ).value.trim(),
-
-            model:
-                document.getElementById(
-                    `model-${bayNo}`
-                ).value.trim(),
-
-            qrValue:
-                document.getElementById(
-                    `qr-${bayNo}`
-                ).value.trim(),
-
-            ipAddress:
-                document.getElementById(
-                    `ip-${bayNo}`
-                ).value.trim()
-
-        };
-
-
-        const response = await fetch(
-            `http://localhost:5000/api/products/${bayNo}`,
-            {
-                method: "PUT",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify(productData)
-            }
-        );
-
-
-        const result = await response.json();
-
-
-        if (!result.success) {
-
-            throw new Error(
-                result.message || "Failed to save FLC"
-            );
-
-        }
-
-
-        flcProducts[bayNo] = result.data;
-
-        renderFLCTable();
-
-        console.log(
-            "[FLC SAVED]",
-            result.data
-        );
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "[FLC SAVE ERROR]",
-            error
-        );
-
-        alert(
-            "Unable to save:\n" +
-            error.message
-        );
-
-    }
-
-}
-
-// =====================================================
-// SAVE FLC
-// =====================================================
-
-async function saveFLC(bayNo) {
-
-    try {
-
-        const row = document.querySelector(
-            `tr[data-bay-no="${bayNo}"]`
-        );
-
-        if (!row) {
-            throw new Error("FLC row not found");
-        }
-
-
-        const productInput = row.querySelector(
-            `#product-${bayNo}`
-        );
-
-        const modelInput = row.querySelector(
-            `#model-${bayNo}`
-        );
-
-        const qrInput = row.querySelector(
-            `#qr-${bayNo}`
-        );
-
-
-        if (!productInput) {
-            throw new Error("Product field not found");
-        }
-
-        if (!modelInput) {
-            throw new Error("Model field not found");
-        }
-
-        if (!qrInput) {
-            throw new Error("QR Data field not found");
-        }
-
-
-        // Keep the existing IP address.
-        // IP is NOT editable.
-        const existingIP =
-            flcProducts[bayNo].ipAddress || "";
-
-
-        const product = productInput.value.trim();
-        const model = modelInput.value.trim();
-        const qrData = qrInput.value.trim();
-
-
-        // QR contains Product + Model + QR Data
-        const qrValue = JSON.stringify({
-            product: product,
-            model: model,
-            qrData: qrData
-        });
-
-
-        const productData = {
-
-            bayNo: String(bayNo),
-
-            product: product,
-
-            model: model,
-
-            qrValue: qrValue,
-
-            // Keep existing IP
-            ipAddress: existingIP
-
-        };
-
-
-        console.log(
-            "[FLC SAVE]",
-            productData
-        );
-
-
-        const response = await fetch(
-            `http://localhost:5000/api/products/${bayNo}`,
-            {
-                method: "PUT",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify(productData)
-            }
-        );
-
-
-        const result = await response.json();
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                result.message ||
-                "Server error"
-            );
-
-        }
-
-
-        if (!result.success) {
-
-            throw new Error(
-                result.message ||
-                "Unable to save FLC"
-            );
-
-        }
-
-
-        // Update local data
-        flcProducts[bayNo] = result.data;
-
-
-        // Refresh table
-        renderFLCTable();
-
-
-        console.log(
-            "[FLC SAVED SUCCESSFULLY]",
-            result.data
-        );
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "[FLC SAVE ERROR]",
-            error
-        );
-
-        alert(
-            "Unable to save:\n\n" +
-            error.message
-        );
-
-    }
-
-}
-
-// =====================================================
-// DELETE FLC
-// =====================================================
-
-async function deleteFLC(
-    bayNo
-) {
-
-    const item =
-        flcProducts[
-            bayNo
-        ];
-
-
-    if (!item) {
-
-        return;
-
-    }
-
-
-    const confirmed =
-        confirm(
-            `Delete product for Bay ${bayNo}?`
-        );
-
-
-    if (!confirmed) {
-
-        return;
-
-    }
-
-
-    try {
-
-        const response =
-            await fetch(
-
-                `http://localhost:5000/api/products/${bayNo}`,
-
-                {
-
-                    method:
-                        "DELETE"
-
-                }
-
-            );
-
-
-        const result =
-            await response.json();
-
-
-        if (!result.success) {
-
-            throw new Error(
-                result.message
-            );
-
-        }
-
-
-        delete flcProducts[
-            bayNo
-        ];
-
-
-        renderFLCTable();
-
-
-        console.log(
-            `[FLC] Bay ${bayNo} deleted`
-        );
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "[FLC DELETE ERROR]",
-            error
-        );
-
-
-        alert(
-            "Unable to delete:\n" +
-            error.message
-        );
-
-    }
-
-}
-
-    // =====================================================
-// INITIAL FLC DATA
-// =====================================================
-
-socket.on(
-    "products-initial",
-    products => {
-
-        console.log(
-            "[FLC INITIAL]",
-            products
-        );
-
-
-        flcProducts =
-            products || {};
-
-
-        renderFLCTable();
-
-    }
-);
-
-
-// =====================================================
-// REAL-TIME PRODUCT UPDATE
-// UPDATE FLC TABLE + LATEST PRODUCT DATA
-// =====================================================
-socket.on(
-    "product-updated",
-    product => {
-
-        console.log(
-            "[FLC REAL-TIME UPDATE]",
-            product
-        );
-
-        const bayNo =
-            String(product.bayNo);
-
-        // Update FLC table
-        flcProducts[bayNo] =
-            product;
-
-        renderFLCTable();
-
-
-        // =============================================
-        // UPDATE LATEST PRODUCT DATA
-        // =============================================
-
-        updateProductOnMainScreen(
-            product
-        );
-
-    }
-);
-
-
-       function updateProductOnMainScreen(product) {
-
-    if (!product) {
-        console.warn("[PRODUCT] No product data");
-        return;
-    }
-
-    const bayNo = String(product.bayNo ?? "");
-
-    if (!bayNo) {
-        console.warn("[PRODUCT] Bay number missing", product);
-        return;
-    }
-
-    console.log("[PRODUCT] Updating Latest Product:", product);
-
-    // =============================================
-    // SAVE LAST PRODUCT
-    // =============================================
-
-    lastProducts[bayNo] = product;
-
-    try {
-        localStorage.setItem(
-            "latestProductData",
-            JSON.stringify(product)
-        );
-
-        console.log("[STORAGE] Latest product saved");
-    } catch (error) {
-        console.error("[STORAGE] Save failed:", error);
-    }
-
-    // =============================================
-    // UPDATE LATEST PRODUCT SECTION
-    // =============================================
-
-    displayProduct(product);
-
-    // =============================================
-    // UPDATE BAY TABLE
-    // =============================================
-
-    renderBays();
-
-    // =============================================
-    // UPDATE LAST DATA TIME
-    // =============================================
-
-    const lastDataTime =
-        document.getElementById("lastDataTime");
-
-    if (lastDataTime) {
-        lastDataTime.textContent =
-            new Date().toLocaleTimeString();
-    }
-
-    // =============================================
-    // LOG
-    // =============================================
-
-    addLog(
-        `[DATA] Bay ${bayNo} | ` +
-        `Product: ${product.product || "--"}`
-    );
-}
-// =====================================================
-// REAL-TIME PRODUCT DELETE
-// =====================================================
-
-socket.on(
-    "product-deleted",
-    data => {
-
-        console.log(
-            "[FLC REAL-TIME DELETE]",
-            data
-        );
-
-
-        const bayNo =
-            String(
-                data.bayNo
-            );
-
-
-        delete flcProducts[
-            bayNo
-        ];
-
-
-        renderFLCTable();
-
-    }
-);
-
-
-// =====================================================
-// LOAD FLC PRODUCTS
-// =====================================================
-
-async function loadFLCProducts() {
-
-    try {
-
-        const response =
-            await fetch(
-                "http://localhost:5000/api/products"
-            );
-
-
-        const result =
-            await response.json();
-
-
-        if (!result.success) {
-
-            throw new Error(
-                "Unable to load FLC products"
-            );
-
-        }
-
-
-        flcProducts =
-            result.data || {};
-
-
-        renderFLCTable();
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "[FLC LOAD ERROR]",
-            error
-        );
-
-    }
-
-}
-
-
-
-
-    
-// =====================================================
-// FLC ADD NEW
-// =====================================================
-
-document.addEventListener("DOMContentLoaded", function () {
-
-    const addButton =
-        document.getElementById("addFLCButton");
-
-    const modal =
-        document.getElementById("flcModal");
-
-    const closeButton =
-        document.getElementById("closeFLCButton");
-
-    const cancelButton =
-        document.getElementById("cancelFLCButton");
-
-    const saveButton =
-        document.getElementById("saveNewFLCButton");
-
-    const flcBaySelect =
-        document.getElementById("flcBayNo");
-
-    const flcIPInput =
-        document.getElementById("flcIPAddress");
-
-
-    // =============================================
-    // BAY DROPDOWN
-    // =============================================
-
-    if (flcBaySelect) {
-
-        flcBaySelect.addEventListener(
-            "change",
-            function () {
-
-                const selectedBayNo =
-                    String(this.value);
-
-                if (!selectedBayNo) {
-
-                    if (flcIPInput) {
-                        flcIPInput.value = "";
-                    }
-
-                    return;
-                }
-
-                const selectedBay =
-                    bays.find(
-                        bay =>
-                            String(
-                                bay["Bay No"]
-                            ) === selectedBayNo
-                    );
-
-                if (!selectedBay) {
-
-                    if (flcIPInput) {
-                        flcIPInput.value = "";
-                    }
-
-                    return;
-                }
-
-                if (flcIPInput) {
-
-                    flcIPInput.value =
-                        selectedBay["IP Address"] || "";
-
-                }
-
-                console.log(
-                    "[FLC BAY SELECTED]",
-                    selectedBay
-                );
-            }
-        );
-
-    }
-
-
-    // =============================================
-    // ADD NEW BUTTON
-    // =============================================
-
-    if (addButton) {
-
-        addButton.addEventListener(
-            "click",
-            function () {
-
-                console.log(
-                    "[FLC] ADD NEW clicked"
-                );
-
-                // Load latest bay list
-                populateFLCBayDropdown();
-
-                // Clear old values
-                clearFLCForm();
-
-                // Open modal
-                if (modal) {
-
-                    modal.classList.remove(
-                        "hidden"
-                    );
-
-                }
-
-            }
-        );
-
-    } else {
-
-        console.error(
-            "[FLC] addFLCButton NOT FOUND"
-        );
-
-    }
-
-
-    // =============================================
-    // CLOSE BUTTON
-    // =============================================
-
-    if (closeButton) {
-
-        closeButton.addEventListener(
-            "click",
-            closeFLCForm
-        );
-
-    }
-
-
-    // =============================================
-    // CANCEL BUTTON
-    // =============================================
-
-    if (cancelButton) {
-
-        cancelButton.addEventListener(
-            "click",
-            closeFLCForm
-        );
-
-    }
-
-
-    // =============================================
-    // SAVE BUTTON
-    // =============================================
-
-    if (saveButton) {
-
-        saveButton.addEventListener(
-            "click",
-            addNewFLCRecord
-        );
-
-    }
-
-
-    // =============================================
-    // CLICK OUTSIDE MODAL
-    // =============================================
-
-    if (modal) {
-
-        modal.addEventListener(
-            "click",
-            function (event) {
-
-                if (
-                    event.target === modal
-                ) {
-
-                    closeFLCForm();
-
-                }
-
-            }
-        );
-
-    }
-
-});
-
-
-// =====================================================
-// CLEAR FLC FORM
-// =====================================================
-
-function clearFLCForm() {
-
-   const fields = [
-    "flcBayNo",
-    "flcProduct",
-    "flcModel",
-    "flcQRData",
-    "flcIPAddress"
-];
-
-
-    fields.forEach(
-        id => {
-
-            const element =
-                document.getElementById(id);
-
-            if (element) {
-
-                element.value = "";
-
-            }
-
-        }
-    );
-
-}
-
-
-// =====================================================
-// CLOSE FLC FORM
-// =====================================================
-
-function closeFLCForm() {
-
-    const modal =
-        document.getElementById("flcModal");
-
-    if (modal) {
-
-        modal.classList.add(
-            "hidden"
-        );
-
-    }
-
-}
-
-
-// =====================================================
-// ADD NEW FLC RECORD
-// =====================================================
-
-async function addNewFLCRecord() {
-
-    try {
-
-        // =============================================
-        // GET VALUES
-        // =============================================
-   const bayNo =
-    document
-        .getElementById("flcBayNo")
-        .value
-        .trim();
-
-const product =
-    document
-        .getElementById("flcProduct")
-        .value
-        .trim();
-
-const model =
-    document
-        .getElementById("flcModel")
-        .value
-        .trim();
-
-const qrValue =
-    document
-        .getElementById("flcQRData")
-        .value
-        .trim();
-
-const ipAddress =
-    document
-        .getElementById("flcIPAddress")
-        .value
-        .trim();
-
-
-        // =============================================
-        // VALIDATION
-        // ============================================
-
-
-        if (!bayNo) {
-
-            alert(
-                "Please select Bay No."
-            );
-
-            return;
-
-        }
-        if (!product) {
-
-            alert(
-                "Please enter Product."
-            );
-
-            return;
-
-        }
-
-
-        if (!model) {
-
-            alert(
-                "Please enter Model."
-            );
-
-            return;
-
-        }
-
-
-        if (!qrValue) {
-
-            alert(
-                "Please enter QR Data."
-            );
-
-            return;
-
-        }
-
-
-        if (!ipAddress) {
-
-            alert(
-                "Please enter IP Address."
-            );
-
-            return;
-
-        }
-
-
-        // =============================================
-        // DUPLICATE BAY CHECK
-        // =============================================
-
-        if (
-            flcProducts &&
-            flcProducts[bayNo]
-        ) {
-
-            alert(
-                `Bay ${bayNo} already has an FLC record.\n\nUse EDIT to change it.`
-            );
-
-            return;
-
-        }
-
-
-        // =============================================
-        // PRODUCT OBJECT
-        // =============================================
-const productData = {
-
-    bayNo: bayNo,
-
-    product: product,
-
-    model: model,
-
-    qrValue: JSON.stringify({
-    product: product,
-    model: model,
-    qrData: qrValue
-}),
-    ipAddress: ipAddress
-};
-
-
-        console.log(
-            "[FLC ADD]",
-            productData
-        );
-
-
-        // =============================================
-        // SEND TO BACKEND
-        // =============================================
-
-        const response =
-            await fetch(
-                `http://localhost:5000/api/products/${bayNo}`,
-                {
-
-                    method: "PUT",
-
-                    headers: {
-
-                        "Content-Type":
-                            "application/json"
-
-                    },
-
-                    body:
-                        JSON.stringify(
-                            productData
-                        )
-
-                }
-            );
-
-
-        const result =
-            await response.json();
-
-
-        console.log(
-            "[FLC ADD RESPONSE]",
-            result
-        );
-
-
-        // =============================================
-        // CHECK RESPONSE
-        // =============================================
-
-        if (!response.ok) {
-
-            throw new Error(
-                result.message ||
-                "Server error"
-            );
-
-        }
-
-
-        if (!result.success) {
-
-            throw new Error(
-                result.message ||
-                "Unable to add FLC"
-            );
-
-        }
-
-
-                flcProducts[bayNo] =
-                result.data;
-
-
-            // Update FLC table
-            renderFLCTable();
-
-
-            // Update Latest Product Data
-            updateProductOnMainScreen(
-                result.data
-            );
-
-        // =============================================
-        // CLOSE MODAL
-        // =============================================
-
-        closeFLCForm();
-
-
-        // =============================================
-        // SUCCESS
-        // =============================================
-
-        alert(
-            `FLC successfully added for Bay ${bayNo}`
-        );
-
-
-        console.log(
-            "[FLC] Successfully added",
-            result.data
-        );
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "[FLC ADD ERROR]",
-            error
-        );
-
-
-        alert(
-            "Unable to add FLC:\n\n" +
-            error.message
-        );
-    }
-}
-// =====================================================
-// RESTORE LATEST PRODUCT AFTER PAGE REFRESH
-// =====================================================
-
-function restoreLatestProduct() {
-
-    try {
-
-        const saved =
-            localStorage.getItem("latestProductData");
-
-        if (!saved) {
-            console.log("[STORAGE] No latest product saved");
-            return;
-        }
-
-        const product =
-            JSON.parse(saved);
-
-        console.log(
-            "[STORAGE] Restoring latest product:",
-            product
-        );
-
-        displayProduct(product);
-
-    } catch (error) {
-
-        console.error(
-            "[STORAGE] Restore failed:",
-            error
-        );
-
-    }
-}
-
-
-// Restore after page loads
-restoreLatestProduct();
+updateSummary();

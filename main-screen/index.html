@@ -21,6 +21,7 @@
 
 <body>
 
+
     <!-- =================================================
          HEADER
     ================================================== -->
@@ -36,6 +37,7 @@
             </p>
 
         </div>
+
 
         <div class="system-status">
 
@@ -53,404 +55,395 @@
     </header>
 
 
-    <!-- =================================================
-         SUMMARY CARDS
-    ================================================== -->
 
-    <section class="summary">
+ <section class="summary">
 
-        <div class="summary-card">
+    <!-- TOTAL BAYS -->
+    <div class="summary-card">
 
-            <div class="summary-title">
-                TOTAL BAYS
-            </div>
-
-            <div
-                id="totalBays"
-                class="summary-value"
-            >
-                0
-            </div>
-
+        <div class="summary-title">
+            TOTAL BAYS
         </div>
 
-
-        <div class="summary-card">
-
-            <div class="summary-title">
-                CONNECTED
-            </div>
-
-            <div
-                id="connectedBays"
-                class="summary-value"
-            >
-                0
-            </div>
-
-        </div>
-
-
-        <div class="summary-card">
-
-            <div class="summary-title">
-                OFFLINE
-            </div>
-
-            <div
-                id="offlineBays"
-                class="summary-value"
-            >
-                0
-            </div>
-
-        </div>
-
-
-        <div class="summary-card">
-
-            <div class="summary-title">
-                LAST DATA
-            </div>
-
-            <div
-                id="lastDataTime"
-                class="summary-value small"
-            >
-                --
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- =================================================
-         BAY TABLE
-    ================================================== -->
-
-    <main class="container">
-
-       
-
-<!-- =====================================================
-     FLC CREATION
-===================================================== -->
-
-<section class="panel flc-panel">
-
-    <div class="panel-header">
-
-        <div>
-            <h2>FLC Creation</h2>
-
-            <p>
-                Create and manage product information
-                for factory bays
-            </p>
-        </div>
-
-        <button
-            type="button"
-            id="addFLCButton"
-            class="add-button"
+        <div
+            id="totalBays"
+            class="summary-value"
         >
-            + ADD NEW
-        </button>
+            0
+        </div>
 
     </div>
 
 
-    <!-- FLC TABLE -->
+    <!-- CONNECTED -->
+    <div class="summary-card">
 
-    <div class="flc-table-container">
+        <div class="summary-title">
+            CONNECTED
+        </div>
 
-        <table class="flc-table">
+        <div
+            id="connectedBays"
+            class="summary-value"
+        >
+            0
+        </div>
 
-            <thead>
-
-                <tr>
-
-                    <th>Serial No.</th>
-                    <th>Bay No.</th>
-                    <th>Product</th>
-                    <th>Model</th>
-                    <th>QR Data</th>
-                    <th>IP Address</th>
-                    <th>Status</th>
-                    <th>Action</th>
-
-                </tr>
-
-            </thead>
+    </div>
 
 
-            <tbody id="flcTableBody">
+    <!-- COMMUNICATION STATUS -->
+    <div class="summary-card">
 
-                <tr>
+        <div class="summary-title">
+            COMMUNICATION STATUS
+        </div>
 
-                    <td
-                        colspan="9"
-                        class="empty-row"
-                    >
-                        No FLC records found.
-                    </td>
+        <div
+            id="communicationStatusSummary"
+            class="summary-value"
+        >
+            0
+        </div>
 
-                </tr>
+    </div>
 
-            </tbody>
 
-        </table>
+    <!-- OFFLINE -->
+    <div class="summary-card">
+
+        <div class="summary-title">
+            OFFLINE
+        </div>
+
+        <div
+            id="offlineBays"
+            class="summary-value"
+        >
+            0
+        </div>
 
     </div>
 
 </section>
 
 
-<!-- =====================================================
-     FLC ADD FORM
-===================================================== -->
 
-<div
-    id="flcModal"
-    class="flc-modal hidden"
->
+    <!-- =================================================
+         MAIN CONTAINER
+    ================================================== -->
 
-    <div class="flc-modal-box">
-
-        <div class="flc-modal-header">
-
-            <div>
-
-                <h2>Add FLC Details</h2>
-
-                <p>
-                    Enter product information
-                </p>
-
-            </div>
-
-            <button
-                type="button"
-                id="closeFLCButton"
-                class="close-flc-button"
-            >
-                ×
-            </button>
-
-        </div>
+    <main class="container">
 
 
-        <div class="flc-form">
+
+        <!-- =====================================================
+             FLC CREATION
+        ===================================================== -->
+
+        <section class="panel flc-panel">
 
 
-           
-
-
-            <!-- BAY NO -->
-
-            <div class="flc-form-group">
-
-                <label>
-                    Bay No.
-                </label>
-
-                <select id="flcBayNo">
-                    <option value="">Select Bay</option>
-                </select>
-
-            </div>
-
-
-          
-
-
-            <!-- PRODUCT -->
-
-            <div class="flc-form-group">
-
-                <label>
-                    Product
-                </label>
-
-                <input
-                    type="text"
-                    id="flcProduct"
-                    placeholder="Enter Product"
-                >
-
-            </div>
-
-
-            <!-- MODEL -->
-
-            <div class="flc-form-group">
-
-                <label>
-                    Model
-                </label>
-
-                <input
-                    type="text"
-                    id="flcModel"
-                    placeholder="Enter Model"
-                >
-
-            </div>
-
-
-            <!-- QR DATA -->
-
-            <div class="flc-form-group">
-
-                <label>
-                    QR Data
-                </label>
-
-                <input
-                    type="text"
-                    id="flcQRData"
-                    placeholder="Enter QR Data"
-                >
-
-                <small>
-                    Only this value will be stored inside the QR code.
-                </small>
-
-            </div>
-
-
-            <!-- IP ADDRESS -->
-
-            <div class="flc-form-group">
-
-                <label>
-                    IP Address
-                </label>
-
-                <input
-                    type="text"
-                    id="flcIPAddress"
-                    placeholder="192.168.0.101"
-                        readonly
-                >
-
-            </div>
-
-
-        </div>
-
-
-        <!-- BUTTONS -->
-
-        <div class="flc-modal-actions">
-
-            <button
-                type="button"
-                id="cancelFLCButton"
-                class="cancel-flc-button"
-            >
-                CANCEL
-            </button>
-
-
-            <button
-                type="button"
-                id="saveNewFLCButton"
-                class="save-flc-button"
-            >
-                ADD FLC
-            </button>
-
-        </div>
-
-    </div>
-
-</div>
-
-        <section class="panel">
+            <!-- PANEL HEADER -->
 
             <div class="panel-header">
 
                 <div>
 
-                    <h2>Bay Status</h2>
+                    <h2>
+                        FLC Creation
+                    </h2>
 
                     <p>
-                        Live status of all factory computers
+                        Create and manage order information
+                        for factory bays
                     </p>
 
                 </div>
 
+
                 <button
-                    id="refreshButton"
-                    class="refresh-button"
+                    type="button"
+                    id="addFLCButton"
+                    class="add-button"
                 >
-                    Refresh
+                    + ADD NEW
                 </button>
 
             </div>
 
 
-            <div class="table-container">
 
-                <table>
+            <!-- =================================================
+                 FLC TABLE
+            ================================================== -->
+
+            <div class="flc-table-container">
+
+                <table class="flc-table">
+
+
+                    <!-- TABLE HEADER -->
 
                     <thead>
 
                         <tr>
 
-                            <th>Serial No.</th>
+                            <th>
+                                S.No.
+                            </th>
 
-                            <th>Bay No</th>
+                            <th>
+                                Bay No.
+                            </th>
 
-                            <th>IP Address</th>
+                            <th>
+                                Order ID
+                            </th>
 
-                            <th>TCP Port</th>
+                            <th>
+                                Connection Status
+                            </th>
 
-                            <th>Status</th>
+                            <th>
+                                Communication Status
+                            </th>
 
-                            <th>Last Product</th>
-
-                            <th>Action</th>
+                            <th>
+                                Action
+                            </th>
 
                         </tr>
 
                     </thead>
 
-                    <tbody id="bayTableBody">
+
+
+                    <!-- TABLE BODY -->
+
+                    <tbody id="flcTableBody">
 
                         <tr>
 
                             <td
-                                colspan="7"
-                                class="loading"
+                                colspan="6"
+                                class="empty-row"
                             >
-                                Loading Bays...
+                                No FLC records found.
+                                Click
+                                <strong>
+                                    + ADD NEW
+                                </strong>
+                                to create one.
                             </td>
 
                         </tr>
 
                     </tbody>
 
+
                 </table>
 
             </div>
 
+
         </section>
 
 
+
+        <!-- =====================================================
+             FLC ADD / EDIT MODAL
+        ===================================================== -->
+
+        <div
+            id="flcModal"
+            class="flc-modal hidden"
+        >
+
+
+            <div class="flc-modal-box">
+
+
+                <!-- =================================================
+                     MODAL HEADER
+                ================================================== -->
+
+                <div class="flc-modal-header">
+
+
+                    <div>
+
+                        <h2 id="flcModalTitle">
+                            Add FLC Details
+                        </h2>
+
+                        <p>
+                            Enter order information
+                        </p>
+
+                    </div>
+
+
+
+                    <button
+                        type="button"
+                        id="closeFLCButton"
+                        class="close-flc-button"
+                    >
+                        ×
+                    </button>
+
+
+                </div>
+
+
+
+                <!-- =================================================
+                     FLC FORM
+                ================================================== -->
+
+                <div class="flc-form">
+
+
+                    <!-- BAY NUMBER -->
+
+                    <div class="flc-form-group">
+
+                        <label for="flcBayNo">
+                            Bay No.
+                        </label>
+
+
+                        <select id="flcBayNo">
+
+                            <option value="">
+                                Select Bay
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <!-- ORDER ID -->
+
+                    <div class="flc-form-group">
+
+                        <label for="flcOrderID">
+                            Order ID
+                        </label>
+
+
+                        <input
+                            type="text"
+                            id="flcOrderID"
+                            placeholder="Enter Order ID"
+                        >
+
+                    </div>
+
+
+
+                    <!-- QR DATA -->
+
+                    <div class="flc-form-group">
+
+                        <label for="flcQRData">
+                            QR Data
+                        </label>
+
+
+                        <input
+                            type="text"
+                            id="flcQRData"
+                            placeholder="Enter QR Data"
+                        >
+
+
+                        <small>
+                            This value will be stored inside
+                            the QR code.
+                        </small>
+
+                    </div>
+
+
+
+                    <!-- IP ADDRESS -->
+
+                    <div class="flc-form-group">
+
+                        <label for="flcIPAddress">
+                            IP Address
+                        </label>
+
+
+                        <input
+                            type="text"
+                            id="flcIPAddress"
+                            placeholder="192.168.0.101"
+                            readonly
+                        >
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- =================================================
+                     MODAL BUTTONS
+                ================================================== -->
+
+                <div class="flc-modal-actions">
+
+
+                    <button
+                        type="button"
+                        id="cancelFLCButton"
+                        class="cancel-flc-button"
+                    >
+                        CANCEL
+                    </button>
+
+
+
+                    <button
+                        type="button"
+                        id="saveNewFLCButton"
+                        class="save-flc-button"
+                    >
+                        ADD FLC
+                    </button>
+
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+
         <!-- =================================================
-             LATEST PRODUCT
+             LATEST PRODUCT DATA
         ================================================== -->
 
         <section class="panel">
+
+
+            <!-- PANEL HEADER -->
 
             <div class="panel-header">
 
                 <div>
 
-                    <h2>Latest Product Data</h2>
+                    <h2>
+                        Latest Product Data
+                    </h2>
 
                     <p>
                         Most recently received product
@@ -462,58 +455,38 @@
 
 
 
+            <!-- BAY NUMBER -->
 
-           
+            <div class="product-item">
 
+                <span>
+                    Bay No
+                </span>
 
-                <div class="product-item">
-
-                    <span>Bay No</span>
-
-                    <strong id="productBay">
-                        --
-                    </strong>
-
-                </div>
-
-
-              
-
-                <div class="product-item">
-
-                    <span>Product</span>
-
-                    <strong id="productName">
-                        --
-                    </strong>
-
-                </div>
-
-
-                <div class="product-item">
-
-                    <span>Model</span>
-
-                    <strong id="productModel">
-                        --
-                    </strong>
-
-                </div>
-
-
-                <div class="product-item">
-
-                    <span>IP Address</span>
-
-                    <strong id="productIP">
-                        --
-                    </strong>
-
-                </div>
+                <strong id="productBay">
+                    --
+                </strong>
 
             </div>
 
+       
+           <!-- IP ADDRESS -->
+
+            <div class="product-item">
+
+                <span>
+                    IP Address
+                </span>
+
+                <strong id="productIP">
+                    --
+                </strong>
+
+            </div>
+
+
         </section>
+
 
 
         <!-- =================================================
@@ -522,17 +495,23 @@
 
         <section class="panel">
 
+
+            <!-- PANEL HEADER -->
+
             <div class="panel-header">
 
                 <div>
 
-                    <h2>TCP Monitor</h2>
+                    <h2>
+                        TCP Monitor
+                    </h2>
 
                     <p>
                         Live communication log
                     </p>
 
                 </div>
+
 
                 <button
                     id="clearLogButton"
@@ -543,6 +522,9 @@
 
             </div>
 
+
+
+            <!-- TCP LOG -->
 
             <div
                 id="tcpLog"
@@ -555,21 +537,30 @@
 
             </div>
 
+
         </section>
+
 
     </main>
 
 
-    <!-- Socket.IO -->
+
+    <!-- =================================================
+         SOCKET.IO
+    ================================================== -->
 
     <script
         src="http://localhost:5000/socket.io/socket.io.js"
     ></script>
 
 
-    <!-- Application -->
+
+    <!-- =================================================
+         APPLICATION JAVASCRIPT
+    ================================================== -->
 
     <script src="app.js"></script>
+
 
 </body>
 

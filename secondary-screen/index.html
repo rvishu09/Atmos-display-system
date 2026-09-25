@@ -2,129 +2,80 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0">
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <title>Secondary Display</title>
+    <title>Bay Display</title>
 
     <link rel="stylesheet" href="style.css">
-
 </head>
 
 <body>
 
-<div class="screen">
+<div class="secondary-screen">
+
+    <!-- ORDER ID - TOP RIGHT -->
+    <div class="order-id-box">
+        <span>ORDER ID</span>
+        <strong id="orderId">-</strong>
+    </div>
 
 
-    <header>
+    <!-- BAY NUMBER -->
+    <main class="display-content">
 
-        <div class="logo">
-            PRODUCT DISPLAY SYSTEM
+        <div class="bay-label">
+            BAY
         </div>
 
         <div
-            id="connection"
-            class="connection">
-
-            ● WAITING
-
+            id="bayNo"
+            class="bay-number"
+        >
+            ---
         </div>
 
-    </header>
+
+        <!-- QR CODE -->
+        <div
+            id="qrcode"
+            class="qr-code"
+        ></div>
 
 
-    <main>
+        <!-- QR DATA -->
+        <div class="qr-data-label">
+            QR DATA
+        </div>
 
-
-        <section class="information">
-
-            <div class="info-row">
-
-                <span>Bay No.</span>
-
-                <strong id="bayNo">
-                    -
-                </strong>
-
-            </div>
-     
-
-
-            <div class="info-row">
-
-                <span>Product</span>
-
-                <strong id="product">
-                    -
-                </strong>
-
-            </div>
-
-
-            <div class="info-row">
-
-                <span>Model</span>
-
-                <strong id="model">
-                    -
-                </strong>
-
-            </div>
-
-
-            <div class="info-row">
-
-                <span>IP Address</span>
-
-                <strong id="ipAddress">
-                    -
-                </strong>
-
-            </div>
-
-        </section>
-
-
-        <section class="qr-area">
-
-            <div
-                id="qrcode">
-            </div>
-
-
-            <p>
-                Scan QR Code
-            </p>
-
-        </section>
-
+        <div
+            id="qrData"
+            class="qr-data"
+        >
+            -
+        </div>
 
     </main>
 
 
-    <footer>
-
-        TCP PRODUCT DISPLAY
-
-    </footer>
+    <!-- CONNECTION STATUS -->
+    <div
+        id="connection"
+        class="connection"
+    >
+        ● WAITING
+    </div>
 
 </div>
 
 
-<script src="http://192.168.0.135:5000/socket.io/socket.io.js"></script>
-
-
-<script
-    src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
-</script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <script src="app.js"></script>
 
 </body>
-
 </html>
