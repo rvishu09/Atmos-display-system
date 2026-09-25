@@ -126,17 +126,16 @@ socket.on(
 );
 
 
-// =====================================================
-// DISPLAY PRODUCT
-// =====================================================
-
 function displayProduct(product) {
+
+    if (!product) {
+        return;
+    }
 
     console.log(
         "[SECONDARY DISPLAY PRODUCT]",
         product
     );
-
 
     const bayNo =
         document.getElementById("bayNo");
@@ -151,36 +150,51 @@ function displayProduct(product) {
         document.getElementById("ipAddress");
 
 
-    // Bay Number
     if (bayNo) {
         bayNo.textContent =
             product.bayNo || "-";
     }
 
-
-    // Product
     if (productElement) {
         productElement.textContent =
             product.product || "-";
     }
 
-
-    // Model
     if (model) {
         model.textContent =
             product.model || "-";
     }
 
-
-    // IP Address
     if (ipAddress) {
         ipAddress.textContent =
             product.ipAddress || "-";
     }
 
 
-    // QR Code
+    // Generate the QR again
     generateQR(product);
+
+
+    // Save the COMPLETE product for refresh
+    try {
+
+        localStorage.setItem(
+            "secondaryLastProduct",
+            JSON.stringify(product)
+        );
+
+        console.log(
+            "[STORAGE] Product saved"
+        );
+
+    } catch (error) {
+
+        console.error(
+            "[STORAGE] Save failed:",
+            error
+        );
+
+    }
 
 }
 
@@ -321,6 +335,9 @@ function generateQR(
 // =====================================================
 
 function clearSecondaryDisplay() {
+    localStorage.removeItem(
+    "secondaryLastProduct"
+);
 
     const bayNo =
         document.getElementById("bayNo");
@@ -380,3 +397,60 @@ function updateConnection(
         text;
 
 }
+
+// =====================================================
+// RESTORE LAST PRODUCT AFTER REFRESH
+// =====================================================
+
+function restoreLastProduct() {
+
+    try {
+
+        const savedProduct =
+            localStorage.getItem(
+                "secondaryLastProduct"
+            );
+
+        console.log(
+            "[STORAGE] Saved product:",
+            savedProduct
+        );
+
+        if (!savedProduct) {
+
+            console.log(
+                "[STORAGE] No saved product"
+            );
+
+            return;
+
+        }
+
+        const product =
+            JSON.parse(savedProduct);
+
+        console.log(
+            "[STORAGE] Restoring product:",
+            product
+        );
+
+        displayProduct(product);
+
+        updateConnection(
+            `● BAY ${product.bayNo || "-"}`
+        );
+
+    } catch (error) {
+
+        console.error(
+            "[STORAGE] Restore error:",
+            error
+        );
+
+    }
+
+}
+
+
+// Restore immediately when page loads
+restoreLastProduct();

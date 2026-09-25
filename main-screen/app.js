@@ -85,25 +85,19 @@ function populateFLCBayDropdown() {
 // AUTO FILL IP ADDRESS + WAY NO.
 // =====================================================
 
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
+            document.addEventListener(
+                "DOMContentLoaded",
+                () => {
 
-        const baySelect =
-            document.getElementById(
-                "entryBayNo"
-            );
+                const baySelect =
+                document.getElementById("entryBayNo");
 
-
-        if (!baySelect) {
-
-            console.error(
-                "[BAY] entryBayNo element not found"
-            );
-
-            return;
-
-        }
+            if (!baySelect) {
+                console.log(
+                    "[BAY] entryBayNo not used on this screen"
+                );
+                return;
+                }
 
 
         baySelect.addEventListener(
@@ -705,59 +699,77 @@ function updateProductOnMainScreen(
 }
 
 // =====================================================
-// DISPLAY PRODUCT
+// DISPLAY LATEST PRODUCT
 // =====================================================
 
 function displayProduct(product) {
 
-    document.getElementById(
-        "productEmpty"
-    ).classList.add(
-        "hidden"
+    if (!product) {
+        console.warn("[PRODUCT] No product data");
+        return;
+    }
+
+    console.log(
+        "[LATEST PRODUCT DISPLAY]",
+        product
     );
 
 
-    document.getElementById(
-        "productData"
-    ).classList.remove(
-        "hidden"
+    // =============================================
+    // BAY NO
+    // =============================================
+
+    const bayElement =
+        document.getElementById("productBay");
+
+    if (bayElement) {
+        bayElement.textContent =
+            product.bayNo || "--";
+    }
+
+
+    // =============================================
+    // PRODUCT
+    // =============================================
+
+    const productElement =
+        document.getElementById("productName");
+
+    if (productElement) {
+        productElement.textContent =
+            product.product || "--";
+    }
+
+
+    // =============================================
+    // MODEL
+    // =============================================
+
+    const modelElement =
+        document.getElementById("productModel");
+
+    if (modelElement) {
+        modelElement.textContent =
+            product.model || "--";
+    }
+
+
+    // =============================================
+    // IP ADDRESS
+    // =============================================
+
+    const ipElement =
+        document.getElementById("productIP");
+
+    if (ipElement) {
+        ipElement.textContent =
+            product.ipAddress || "--";
+    }
+
+
+    console.log(
+        "[LATEST PRODUCT] Display updated"
     );
-
-
-    document.getElementById(
-        "productWay"
-    ).textContent =
-        product.wayNo || "--";
-
-
-    document.getElementById(
-        "productBay"
-    ).textContent =
-        product.bayNo || "--";
-
-
-    document.getElementById(
-        "productSerial"
-    ).textContent =
-        product.serialNo || "--";
-
-
-    document.getElementById(
-        "productName"
-    ).textContent =
-        product.product || "--";
-
-
-    document.getElementById(
-        "productModel"
-    ).textContent =
-        product.model || "--";
-
-
-    document.getElementById(
-        "productIP"
-    ).textContent =
-        product.ipAddress || "--";
 
 }
 
@@ -2103,8 +2115,8 @@ socket.on(
 
 // =====================================================
 // REAL-TIME PRODUCT UPDATE
+// UPDATE FLC TABLE + LATEST PRODUCT DATA
 // =====================================================
-
 socket.on(
     "product-updated",
     product => {
@@ -2114,25 +2126,94 @@ socket.on(
             product
         );
 
-
         const bayNo =
-            String(
-                product.bayNo
-            );
+            String(product.bayNo);
 
-
-        flcProducts[
-            bayNo
-        ] =
+        // Update FLC table
+        flcProducts[bayNo] =
             product;
 
-
         renderFLCTable();
+
+
+        // =============================================
+        // UPDATE LATEST PRODUCT DATA
+        // =============================================
+
+        updateProductOnMainScreen(
+            product
+        );
 
     }
 );
 
 
+       function updateProductOnMainScreen(product) {
+
+    if (!product) {
+        console.warn("[PRODUCT] No product data");
+        return;
+    }
+
+    const bayNo = String(product.bayNo ?? "");
+
+    if (!bayNo) {
+        console.warn("[PRODUCT] Bay number missing", product);
+        return;
+    }
+
+    console.log("[PRODUCT] Updating Latest Product:", product);
+
+    // =============================================
+    // SAVE LAST PRODUCT
+    // =============================================
+
+    lastProducts[bayNo] = product;
+
+    try {
+        localStorage.setItem(
+            "latestProductData",
+            JSON.stringify(product)
+        );
+
+        console.log("[STORAGE] Latest product saved");
+    } catch (error) {
+        console.error("[STORAGE] Save failed:", error);
+    }
+
+    // =============================================
+    // UPDATE LATEST PRODUCT SECTION
+    // =============================================
+
+    displayProduct(product);
+
+    // =============================================
+    // UPDATE BAY TABLE
+    // =============================================
+
+    renderBays();
+
+    // =============================================
+    // UPDATE LAST DATA TIME
+    // =============================================
+
+    const lastDataTime =
+        document.getElementById("lastDataTime");
+
+    if (lastDataTime) {
+        lastDataTime.textContent =
+            new Date().toLocaleTimeString();
+    }
+
+    // =============================================
+    // LOG
+    // =============================================
+
+    addLog(
+        `[DATA] Bay ${bayNo} | ` +
+        `Product: ${product.product || "--"}`
+    );
+}
 // =====================================================
 // REAL-TIME PRODUCT DELETE
 // =====================================================
@@ -2665,16 +2746,18 @@ const productData = {
         }
 
 
-        // =============================================
-        // UPDATE LOCAL TABLE
-        // =============================================
-
-        flcProducts[bayNo] =
-            result.data;
+                flcProducts[bayNo] =
+                result.data;
 
 
-        renderFLCTable();
+            // Update FLC table
+            renderFLCTable();
 
+
+            // Update Latest Product Data
+            updateProductOnMainScreen(
+                result.data
+            );
 
         // =============================================
         // CLOSE MODAL
@@ -2713,3 +2796,42 @@ const productData = {
         );
     }
 }
+// =====================================================
+// RESTORE LATEST PRODUCT AFTER PAGE REFRESH
+// =====================================================
+
+function restoreLatestProduct() {
+
+    try {
+
+        const saved =
+            localStorage.getItem("latestProductData");
+
+        if (!saved) {
+            console.log("[STORAGE] No latest product saved");
+            return;
+        }
+
+        const product =
+            JSON.parse(saved);
+
+        console.log(
+            "[STORAGE] Restoring latest product:",
+            product
+        );
+
+        displayProduct(product);
+
+    } catch (error) {
+
+        console.error(
+            "[STORAGE] Restore failed:",
+            error
+        );
+
+    }
+}
+
+
+// Restore after page loads
+restoreLatestProduct();

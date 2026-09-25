@@ -3,20 +3,20 @@
     "bayNo": "1",
     "wayNo": "",
     "serialNo": "",
-    "product": "asdfghj",
-    "model": "234",
-    "qrValue": "{\"product\":\"asdfghj\",\"model\":\"234\",\"qrData\":\"hy65tgb\"}",
+    "product": "df",
+    "model": "wsdxcvg5",
+    "qrValue": "{\"product\":\"df\",\"model\":\"wsdxcvg5\",\"qrData\":\"sdfvg\"}",
     "ipAddress": "127.0.0.1",
-    "updatedAt": "2026-09-25T06:45:14.685Z"
+    "updatedAt": "2026-09-25T08:37:09.938Z"
   },
-  "3": {
-    "bayNo": "3",
+  "2": {
+    "bayNo": "2",
     "wayNo": "",
     "serialNo": "",
-    "product": "swdefrgt",
-    "model": "23erdf",
-    "qrValue": "{\"product\":\"swdefrgt\",\"model\":\"23erdf\",\"qrData\":\"xcv\"}",
-    "ipAddress": "127.0.0.7",
-    "updatedAt": "2026-09-25T06:47:03.658Z"
+    "product": "mnjhgyf",
+    "model": "123",
+    "qrValue": "{\"product\":\"mnjhgyf\",\"model\":\"123\",\"qrData\":\"34rf\"}",
+    "ipAddress": "127.0.2.4",
+    "updatedAt": "2026-09-25T08:40:32.744Z"
   }
 }
