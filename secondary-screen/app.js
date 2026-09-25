@@ -37,19 +37,61 @@ socket.on("disconnect", () => {
 
 socket.on(
     "tcp-status",
-    data => {
+    async data => {
 
         console.log(
             "TCP STATUS:",
             data
         );
 
-
         if (data.connected) {
 
             updateConnection(
                 `● BAY ${data.bayNo} CONNECTED`
             );
+
+            // =========================================
+            // LOAD PRODUCT SAVED FOR THIS BAY
+            // =========================================
+
+            try {
+
+                const response = await fetch(
+                    `http://192.168.0.135:5000/api/products/${data.bayNo}`
+                );
+
+                const result = await response.json();
+
+                console.log(
+                    "[SECONDARY] PRODUCT FROM BAY:",
+                    result
+                );
+
+                if (
+                    result.success &&
+                    result.data
+                ) {
+
+                    displayProduct(
+                        result.data
+                    );
+
+                } else {
+
+                    console.log(
+                        `[SECONDARY] No product saved for Bay ${data.bayNo}`
+                    );
+
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "[SECONDARY] Product loading error:",
+                    error
+                );
+
+            }
 
         } else {
 
@@ -61,7 +103,6 @@ socket.on(
 
     }
 );
-
 
 // =====================================================
 // RECEIVE PRODUCT FROM TCP
@@ -89,22 +130,59 @@ socket.on(
 // DISPLAY PRODUCT
 // =====================================================
 
-socket.on(
-    "display-product",
-    product => {
+function displayProduct(product) {
 
-        console.log(
-            "DISPLAY PRODUCT:",
-            product
-        );
+    console.log(
+        "[SECONDARY DISPLAY PRODUCT]",
+        product
+    );
 
 
-        displayProduct(
-            product
-        );
+    const bayNo =
+        document.getElementById("bayNo");
 
+    const productElement =
+        document.getElementById("product");
+
+    const model =
+        document.getElementById("model");
+
+    const ipAddress =
+        document.getElementById("ipAddress");
+
+
+    // Bay Number
+    if (bayNo) {
+        bayNo.textContent =
+            product.bayNo || "-";
     }
-);
+
+
+    // Product
+    if (productElement) {
+        productElement.textContent =
+            product.product || "-";
+    }
+
+
+    // Model
+    if (model) {
+        model.textContent =
+            product.model || "-";
+    }
+
+
+    // IP Address
+    if (ipAddress) {
+        ipAddress.textContent =
+            product.ipAddress || "-";
+    }
+
+
+    // QR Code
+    generateQR(product);
+
+}
 
 
 // =====================================================
@@ -170,50 +248,7 @@ socket.on(
 );
 
 
-// =====================================================
-// UPDATE SCREEN
-// =====================================================
 
-function displayProduct(
-    product
-) {
-
-    document.getElementById(
-        "bayNo"
-    ).textContent =
-        product.bayNo || "-";
-
-
-    document.getElementById(
-        "serialNo"
-    ).textContent =
-        product.serialNo || "-";
-
-
-    document.getElementById(
-        "product"
-    ).textContent =
-        product.product || "-";
-
-
-    document.getElementById(
-        "model"
-    ).textContent =
-        product.model || "-";
-
-
-    document.getElementById(
-        "ipAddress"
-    ).textContent =
-        product.ipAddress || "-";
-
-
-    // Generate QR
-    generateQR(
-        product
-    );
-
-}
 
 
 // =====================================================
@@ -287,40 +322,41 @@ function generateQR(
 
 function clearSecondaryDisplay() {
 
-    document.getElementById(
-        "bayNo"
-    ).textContent =
-        "-";
+    const bayNo =
+        document.getElementById("bayNo");
+
+    const product =
+        document.getElementById("product");
+
+    const model =
+        document.getElementById("model");
+
+    const ipAddress =
+        document.getElementById("ipAddress");
+
+    const qrcode =
+        document.getElementById("qrcode");
 
 
-    document.getElementById(
-        "serialNo"
-    ).textContent =
-        "-";
+    if (bayNo) {
+        bayNo.textContent = "-";
+    }
 
+    if (product) {
+        product.textContent = "-";
+    }
 
-    document.getElementById(
-        "product"
-    ).textContent =
-        "-";
+    if (model) {
+        model.textContent = "-";
+    }
 
+    if (ipAddress) {
+        ipAddress.textContent = "-";
+    }
 
-    document.getElementById(
-        "model"
-    ).textContent =
-        "-";
-
-
-    document.getElementById(
-        "ipAddress"
-    ).textContent =
-        "-";
-
-
-    document.getElementById(
-        "qrcode"
-    ).innerHTML =
-        "";
+    if (qrcode) {
+        qrcode.innerHTML = "";
+    }
 
 
     updateConnection(

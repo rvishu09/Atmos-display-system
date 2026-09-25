@@ -1,12 +1,22 @@
 {
-  "7": {
-    "bayNo": "7",
-    "wayNo": "22",
-    "serialNo": "wqefrgdsfv",
-    "product": "df",
-    "model": "as",
-    "qrValue": "34rf",
-    "ipAddress": "121.0.2.3",
-    "updatedAt": "2026-09-24T11:59:24.762Z"
+  "1": {
+    "bayNo": "1",
+    "wayNo": "",
+    "serialNo": "",
+    "product": "asdfghj",
+    "model": "234",
+    "qrValue": "{\"product\":\"asdfghj\",\"model\":\"234\",\"qrData\":\"hy65tgb\"}",
+    "ipAddress": "127.0.0.1",
+    "updatedAt": "2026-09-25T06:45:14.685Z"
+  },
+  "3": {
+    "bayNo": "3",
+    "wayNo": "",
+    "serialNo": "",
+    "product": "swdefrgt",
+    "model": "23erdf",
+    "qrValue": "{\"product\":\"swdefrgt\",\"model\":\"23erdf\",\"qrData\":\"xcv\"}",
+    "ipAddress": "127.0.0.7",
+    "updatedAt": "2026-09-25T06:47:03.658Z"
   }
 }
